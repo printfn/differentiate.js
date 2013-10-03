@@ -1,0 +1,34 @@
+start
+  = additive
+
+additive
+  = left:multiplicative "+" right:additive
+    { return { tag: 'addition', left: left, right: right }; }
+  / left:multiplicative "-" right:additive
+    { return { tag: 'subtraction', left: left, right: right }; }
+  / multiplicative
+
+multiplicative
+  = left:exponent "*"? right:multiplicative
+    { return { tag: 'multiplication', left: left, right: right }; }
+  / left:exponent "/" right:multiplicative
+    { return { tag: 'division', left: left, right: right }; }
+  / exponent
+
+exponent
+  = left:primary "^" right:exponent
+    { return { tag: 'exponent', left: left, right: right }; }
+  / primary
+
+primary
+  = integer
+  / function
+  / "x"
+  / "(" additive:additive ")" { return additive; }
+
+function
+  = name:[a-zA-Z]+ "(" args:additive ")"
+    { return { tag: 'function', name: name.join(""), argument: args }; }
+
+integer "integer"
+  = digits:[0-9]+ { return parseInt(digits.join("")); }

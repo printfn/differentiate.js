@@ -1,0 +1,28 @@
+body {
+	font-family: monaco, monospace;
+}
+
+div {
+    display: inline;
+}
+
+/* Any equation part should have a white background by default */
+.equation {
+	background-color: #fff;
+	color: #000;
+	padding: 0px 0px 0px 0px;
+}
+
+/* Whenever you hover over an expression, it and all parents will be highlighted in green */
+.equation:hover {
+	background-color: #000;
+	color: #fff;
+	padding: 2px 0px 2px 0px;
+}
+
+/* The first child expression(s) will be highlighted in blue */
+.equation:hover > .equation:not(:hover) {
+	background-color: #fff;
+	color: #000;
+	padding: 0px 0px 0px 0px;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="parser.js"></script>
+	<script src="eval.js"></script>
+	<script src="printTree.js"></script>
+	<script src="simplifyExpression.js"></script>
+
+	<script>
+		function recalculateDerivative() {
+			try {
+				var startTime = new Date().getTime(); // ms since 1970
+				var thunkValue = function (v, vd) {
+					return { tag: 'value', val: vd };
+				}
+				var func = document.getElementById('functionTextBox').value;
+				var ast = parser.parse(func);
+				var result = trampoline(evalExpr(ast, thunkValue));
+				result = simplifyExpression(result);
+				var html = 'f\'(x) = ' + printTree(result);
+				var endTime = new Date().getTime();
+				var duration = endTime - startTime;
+				html += '<br><br>' + duration + 'ms';
+				document.getElementById('output').style.color = '#000';
+				document.getElementById('output').innerHTML = html;
+			} catch (err) {
+				document.getElementById('output').style.color = '#f00';
+				var errorMessage = 'Invalid input.';
+				if (err.message) {
+					errorMessage += ' ' + err.message;
+				}
+				document.getElementById('output').innerHTML = errorMessage;
+			}
+		}
+	</script>
+</head>
+<body>
+	<p>f(x) = <input type="text" id="functionTextBox" onkeyup="recalculateDerivative()" style="width: 200px" /></p>
+	<p id="output"></p>
+</body>
+</html>
