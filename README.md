@@ -7,6 +7,6 @@ differentiate the expression, followed simplifying the tree and outputting the r
 
 ### TODO
 
- - Better, simpler simplification of derivatives
+ - Better, more consistent simplification of expressions
  - More features (logs, exponents, etc.)
  - Better user interface
