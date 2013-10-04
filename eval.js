@@ -1,58 +1,21 @@
 var add = function (v1, v2) {
 	var result = { tag: 'addition', left: v1, right: v2 };
-	/*if (v1 === 0)
-		result = v2;
-	if (v2 === 0)
-		result = v1;
-	if (!isNaN(v1) && !isNaN(v2))
-		result = v1 + v2;
-	else if (v1 === v2)
-		result = mul(v1, 2);*/
 	return result;
 }
 var sub = function (v1, v2) {
 	var result = { tag: 'subtraction', left: v1, right: v2 };
-	/*if (v2 === 0)
-		result = v1;
-	if (!isNaN(v1) && !isNaN(v2)) {
-		result = v1 - v2;
-	}*/
 	return result;
 }
 var mul = function (v1, v2) {
 	var result = { tag: 'multiplication', left: v1, right: v2 };
-	/*if (v1 === 0)
-		result = 0;
-	else if (v2 === 0)
-		result = 0;
-	else if (v1 === 1)
-		result = v2;
-	else if (v2 === 1)
-		result = v1;
-	else if (v1 === v2)
-		result = exp(v1, 2 ;*/
 	return result;
 }
 var div = function (v1, v2) {
 	var result = { tag: 'division', left: v1, right: v2 };
-	/*if (v2 === 0)
-		result = NaN;
-	else if (v1 === 0)
-		result = 0;
-	else if (v2 === 1)
-		result = v1;*/
 	return result;
 }
 var exp = function (v1, v2) {
 	var result = { tag: 'exponent', left: v1, right: v2 };
-	/*if (v1 === 0) // 0^n
-		result = 0;
-	else if (v2 === 0) // n^0
-		result = 1;
-	else if (v1 === 1) // 1^n
-		result = 1;
-	else if (v2 === 1) // n^1
-		result = v1;*/
 	return result;
 }
 
