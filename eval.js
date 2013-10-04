@@ -34,7 +34,7 @@ function evalExpr(expr, cont) {
 				evalExpr, expr.left, function (v1, v1d) {
 					return thunk(
 						evalExpr, expr.right, function (v2, v2d) {
-							return thunk(cont, { tag: 'addition', left: v1, right: v2 }, add(v1d, v2d));
+							return thunk(cont, add(v1, v2), add(v1d, v2d));
 						});
 				});
 		case 'subtraction':
@@ -42,7 +42,7 @@ function evalExpr(expr, cont) {
 				evalExpr, expr.left, function (v1, v1d) {
 					return thunk(
 						evalExpr, expr.right, function (v2, v2d) {
-							return thunk(cont, { tag: 'subtraction', left: v1, right: v2 }, sub(v1d, v2d));
+							return thunk(cont, sub(v1, v2), sub(v1d, v2d));
 						});
 				});
 		case 'multiplication':
@@ -53,27 +53,25 @@ function evalExpr(expr, cont) {
 							if (!isNaN(v1) && !isNaN(v2)) {
 								// x*x -> 2x
 								if (v1 === 'x' && v2 === 'x') {
-									return thunk(cont, { tag: 'multiplication', left: 'x', right: 'x' }, mul(2, 'x'));
+									return thunk(cont, mul('x', 'x'), mul(2, 'x'));
 								}
 								// Coefficient and x
 								// kx -> k
 								if (v2 === 'x')
-									return thunk(cont, { tag: 'multiplication', left: v1, right: v2 }, v1);
+									return thunk(cont, mul(v1, v2), v1);
 								if (v1 === 'x')
-									return thunk(cont, { tag: 'multiplication', left: v2, right: v1 }, v2);
+									return thunk(cont, mul(v2, v1), v2);
 
 								if (v1d === 0 || v2d === 0) {
 									// 0 * 0 = 0
-									return thunk(cont, { tag: 'multiplication', left: v1, right: v2 }, 0);
+									return thunk(cont, mul(v1, v2), 0);
 								}
 							}
 
 
 							if (isNaN(v1) && isNaN(v2)) {
 								// (fg)' -> f'g + g'f
-								return thunk(cont, 
-									{ tag: 'multiplication', left: v2, right: v1 }, 
-									add(mul(v1d, v2), mul(v1, v2d)));
+								return thunk(cont, mul(v1, v2), add(mul(v1d, v2), mul(v1, v2d)));
 							}
 
 							// Coeffient and function
@@ -92,7 +90,7 @@ function evalExpr(expr, cont) {
 								return thunk(cont, 0, 0);
 							if (k === 1)
 								return thunk(cont, f, fd);
-							return thunk(cont, { tag: 'multiplication', left: k, right: f }, mul(k, fd));
+							return thunk(cont, mul(k, f), mul(k, fd));
 						});
 				});
 		case 'exponent':
@@ -105,7 +103,7 @@ function evalExpr(expr, cont) {
 							var newExponent = n-1;
 							if (typeof newExponent === 'undefined' || isNaN(newExponent))
 								newExponent = sub(n, 1);
-							var oldObj = { tag: 'exponent', left: x, right: n };
+							var oldObj = exp(x, n);
 							var newObj = mul(v1d, mul(n, exp(x, newExponent)));
 							return thunk(cont, oldObj, newObj);
 						});
@@ -120,7 +118,7 @@ function evalExpr(expr, cont) {
 							var subtractionResult = sub(v1dv2, v1v2d);
 							var v2v2 = mul(v2, v2);
 							var derivative = div(subtractionResult, v2v2);
-							return thunk(cont, { tag: 'division', left: v1, right: v2 }, derivative);
+							return thunk(cont, div(v1, v2), derivative);
 						});
 				});
 		case 'function':
