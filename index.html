@@ -59,5 +59,23 @@
 	<input type="checkbox" checked onclick="recalculate()" id="simplifyCheckbox1" />Simplify expression<br>
 	<input type="checkbox" checked onclick="recalculate()" id="differentiateCheckbox" />Differentiate expression<br>
 	<input type="checkbox" checked onclick="recalculate()" id="simplifyCheckbox2" />Simplify derivative<br>
+	<script>
+		$(document).ready(function () {
+			$('.equation').on('mouseenter mouseleave', function() {
+				$(this).toggleClass('hover2');
+			});
+
+			$('.equation').on('mouseover', function (e) {
+				if ($(this).children('.hover2').length === 0) {
+					$(this).addClass('hover');
+					$(this).find('div').addClass('hover');
+				}
+			});
+			$('.equation').on('mouseout', function (e) {
+				$(this).removeClass('hover');
+				$(this).find('div').removeClass('hover');
+			});
+		});
+	</script>
 </body>
 </html>
