@@ -13,13 +13,13 @@ var simplifyNode = function (node) {
 
 	switch (node.tag) {
 		case 'addition': {
-			if (node.left === 0)
+			if (compareNodes(node.left, 0))
 				return node.right;
-			if (node.right === 0)
+			if (compareNodes(node.right, 0))
 				return node.left;
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return node.left + node.right;
-			if (node.left === node.right)
+			if (compareNodes(node.left, node.right))
 				return { tag: 'multiplication', left: node.left, right: 2 };
 			if (typeof node.right.tag !== 'undefined') // (a+(a*b)) -> (a*(b+1))
 				if (node.right.tag === 'multiplication')
@@ -40,26 +40,26 @@ var simplifyNode = function (node) {
 			return node;
 		}
 		case 'subtraction': {
-			if (node.right === 0)
+			if (compareNodes(node.right, 0))
 				return node.left;
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return node.left - node.right;
-			if (node.left === node.right)
+			if (compareNodes(node.left, node.right))
 				return 0;
 			return node;
 		}
 		case 'multiplication': {
-			if (node.left === 0)
+			if (compareNodes(node.left, 0))
 				return 0;
-			if (node.right === 0)
+			if (compareNodes(node.right, 0))
 				return 0;
-			if (node.left === 1)
+			if (compareNodes(node.left, 1))
 				return node.right;
-			if (node.right === 1)
+			if (compareNodes(node.right, 1))
 				return node.left;
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return node.left * node.right;
-			if (node.left === node.right)
+			if (compareNodes(node.left, node.right))
 				return simplifyNode({ tag: 'exponent', left: node.left, right: 2 });
 			if (typeof node.right.tag !== 'undefined') // (a*(a^b)) -> a^(b+1)
 				if (node.right.tag === 'exponent')
@@ -100,30 +100,30 @@ var simplifyNode = function (node) {
 			return node;
 		}
 		case 'division': {
-			if (node.left === 0)
+			if (compareNodes(node.left, 0))
 				return 0;
-			if (node.right === 0)
+			if (compareNodes(node.right, 0))
 				return NaN;
-			if (node.right === 1)
+			if (compareNodes(node.right, 1))
 				return node.left;
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return node.left / node.right;
-			if (node.left === node.right)
+			if (compareNodes(node.left, node.right))
 				return 1;
 			return node;
 		}
 		case 'exponent': {
-			if (node.left === 0)
+			if (compareNodes(node.left, 0))
 				return 0;
-			if (node.right === 0)
+			if (compareNodes(node.right, 0))
 				return 1;
-			if (node.left === 1)
+			if (compareNodes(node.left, 1))
 				return 1;
-			if (node.right === 1)
+			if (compareNodes(node.right, 1))
 				return node.left;
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return Math.pow(node.left, node.right);
-			if (node.left === node.right)
+			if (compareNodes(node.left, node.right))
 				return 1;
 			return node;
 		}
@@ -134,7 +134,7 @@ var simplifyNode = function (node) {
 }
 
 var compareNodes = function (a, b) {
-	if (typeof a === 'number' || typeof a === 'string')
+	if (typeof a === 'number' || typeof a === 'string' || typeof b === 'number' || typeof b === 'string')
 		return a === b;
 	if (typeof a.tag !== 'undefined' && typeof a.left !== 'undefined' && typeof a.right !== 'undefined')
 		if (typeof b.tag !== 'undefined' && typeof b.left !== 'undefined' && typeof b.right !== 'undefined')
