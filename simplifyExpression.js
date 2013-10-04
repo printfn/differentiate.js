@@ -11,6 +11,22 @@ var simplifyNode = function (node) {
 		node.right = simplifyNode(node.right);
 	}
 
+	var add = function (left, right) {
+		return simplifyNode({ tag: 'addition', left: left, right: right });
+	}
+	var subtract = function (left, right) {
+		return simplifyNode({ tag: 'subtraction', left: left, right: right });
+	}
+	var multiply = function (left, right) {
+		return simplifyNode({ tag: 'multiplication', left: left, right: right });
+	}
+	var divide = function (left, right) {
+		return simplifyNode({ tag: 'division', left: left, right: right });
+	}
+	var exponent = function (left, right) {
+		return simplifyNode({ tag: 'exponent', left: left, right: right });
+	}
+
 	switch (node.tag) {
 		case 'addition': {
 			if (compareNodes(node.left, 0))
@@ -24,19 +40,19 @@ var simplifyNode = function (node) {
 			if (typeof node.right.tag !== 'undefined') // (a+(a*b)) -> (a*(b+1))
 				if (node.right.tag === 'multiplication')
 					if (compareNodes(node.right.left, node.left))
-						return simplifyNode({ tag: 'multiplication', left: node.left, right: simplifyNode({ tag: 'addition', left: node.right.right, right: 1 }) });
+						return multiply(node.left, add(node.right.right, 1));
 			if (typeof node.right.tag !== 'undefined') // (a+(b*a)) -> (a*(b+1))
 				if (node.right.tag === 'multiplication')
 					if (compareNodes(node.right.right, node.left))
-						return simplifyNode({ tag: 'multiplication', left: node.left, right: simplifyNode({ tag: 'addition', left: node.right.left, right: 1 }) });
+						return multiply(node.left, add(node.right.left, 1));
 			if (typeof node.left.tag !== 'undefined') // ((a*b)+a) -> (a*(b+1))
 				if (node.left.tag === 'multiplication')
 					if (compareNodes(node.left.left, node.right))
-						return simplifyNode({ tag: 'multiplication', left: node.right, right: simplifyNode({ tag: 'addition', left: node.left.right, right: 1 }) });
+						return multiply(node.right, add(node.left.right, 1));
 			if (typeof node.left.tag !== 'undefined') // ((b*a)+a) -> (a*(b+1))
 				if (node.left.tag === 'multiplication')
 					if (compareNodes(node.left.right, node.right))
-						return simplifyNode({ tag: 'multiplication', left: node.right, right: simplifyNode({ tag: 'addition', left: node.left.left, right: 1 }) });
+						return multiply(node.right, add(node.left.left, 1));
 			return node;
 		}
 		case 'subtraction': {
@@ -64,39 +80,25 @@ var simplifyNode = function (node) {
 			if (typeof node.right.tag !== 'undefined') // (a*(a^b)) -> a^(b+1)
 				if (node.right.tag === 'exponent')
 					if (compareNodes(node.right.left, node.left))
-						return simplifyNode({ tag: 'exponent', left: node.left, right: node.right.right + 1 });
+						return exponent(node.left, node.right.right + 1);
 			if (typeof node.left.tag !== 'undefined') // ((a^b)*a) -> a^(b+1)
 				if (node.left.tag === 'exponent')
 					if (compareNodes(node.left.left, node.right))
-						return simplifyNode({ tag: 'exponent', left: node.right, right: node.left.right + 1 });
+						return exponent(node.right, node.left.right + 1);
 			if (typeof node.right.tag !== 'undefined') // (a*(a*b)) -> (a^2)*b
 				if (node.right.tag === 'multiplication')
 					if (compareNodes(node.right.left, node.left))
-						return simplifyNode({ tag: 'multiplication', left: node.right.right, right: simplifyNode({ tag: 'exponent', left: node.left, right: 2 }) });
+						return multiply(node.right.right, exponent(node.left, 2));
 			if (typeof node.left.tag !== 'undefined') // ((b*a)*a) -> (a^2)*b
 				if (node.left.tag === 'multiplication')
 					if (compareNodes(node.left.right, node.right))
-						return simplifyNode({ tag: 'multiplication', left: simplifyNode({ tag: 'exponent', left: node.right, right: 2 }), right: node.left.left });
+						return multiply(exponent(node.right, 2), node.left.left);
 			if (typeof node.right.tag !== 'undefined') // (a*((a^n)*b)) -> b*(a^(n+1))
 				if (node.right.tag === 'multiplication')
 					if (node.right.left.tag !== 'undefined')
 						if (node.right.left.tag === 'exponent')
 							if (compareNodes(node.right.left.left, node.left))
-								return simplifyNode({
-									tag: 'multiplication',
-									left: node.right.right,
-									right: simplifyNode(
-										{
-											tag: 'exponent',
-											left: node.left,
-											right: simplifyNode(
-												{
-													tag: 'addition',
-													left: node.right.left.right,
-													right: 1
-												})
-										})
-								});
+								return multiply(node.right.right, exponent(node.left, add(node.right.left.right, 1)));
 			return node;
 		}
 		case 'division': {
