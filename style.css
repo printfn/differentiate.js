@@ -14,7 +14,7 @@ div {
 }
 
 /* .hover applies to divs that represent the part of the equation that the user is hovering over */
-.hover {
+.highlight {
 	background-color: #9cf;
 	color: #000;
 	padding: 2px 0px 2px 0px; /* Extra padding makes the highlight look a bit nicer */
