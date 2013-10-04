@@ -141,7 +141,4 @@ var compareNodes = function (a, b) {
 	if (typeof a.tag !== 'undefined' && typeof a.left !== 'undefined' && typeof a.right !== 'undefined')
 		if (typeof b.tag !== 'undefined' && typeof b.left !== 'undefined' && typeof b.right !== 'undefined')
 			return compareNodes(a.tag, b.tag) && compareNodes(a.left, b.left) && compareNodes(a.right, b.right);
-	if (typeof a.tag !== 'undefined' && typeof a.name !== 'undefined' && typeof a.argument !== 'undefined')
-		if (typeof b.tag !== 'undefined' && typeof b.name !== 'undefined' && typeof b.argument !== 'undefined')
-			return compareNodes(a.tag, b.tag) && compareNodes(a.name, b.name) && compareNodes(a.argument, b.argument);
 }

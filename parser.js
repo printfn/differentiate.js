@@ -448,7 +448,7 @@ parser = (function(){
           pos = pos1;
         }
         if (result0 !== null) {
-          result0 = (function(offset, name, args) { return { tag: 'function', name: name.join(""), argument: args }; })(pos0, result0[0], result0[2]);
+          result0 = (function(offset, name, args) { return { tag: 'function', left: name.join(""), right: args }; })(pos0, result0[0], result0[2]);
         }
         if (result0 === null) {
           pos = pos0;

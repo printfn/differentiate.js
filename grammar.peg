@@ -28,7 +28,7 @@ primary
 
 function
   = name:[a-zA-Z]+ "(" args:additive ")"
-    { return { tag: 'function', name: name.join(""), argument: args }; }
+    { return { tag: 'function', left: name.join(""), right: args }; }
 
 integer "integer"
   = digits:[0-9]+ { return parseInt(digits.join("")); }

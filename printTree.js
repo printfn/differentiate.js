@@ -4,7 +4,7 @@ var printTree = function (tree) {
 	}
 
 	if (tree.tag === 'function') {
-		return '<div class="equation">' + printTree(tree.name) + '(' + printTree(tree.argument) + ')</div>';
+		return '<div class="equation">' + printTree(tree.left) + '(' + printTree(tree.right) + ')</div>';
 	}
 
 	if (tree.tag === 'addition') {

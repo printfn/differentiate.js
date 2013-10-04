@@ -162,19 +162,19 @@ function evalExpr(expr, cont) {
 				});
 		case 'function':
 			return thunk(
-				evalExpr, expr.name, function (name) {
+				evalExpr, expr.left, function (name) {
 					return thunk(
-						evalExpr, expr.argument, function(v, vd) { // vd is the derivative of v
+						evalExpr, expr.right, function(v, vd) { // vd is the derivative of v
 							if (typeof v === 'number') {
 								return thunk(cont, v, 0); // return 0 because argument is a number which makes the function constant
 							}
-							var oldObj = { tag: 'function', name: name, argument: v };
-							var newObj = mul({ tag: 'function', name: name, argument: v }, vd);
+							var oldObj = { tag: 'function', left: name, right: v };
+							var newObj = mul({ tag: 'function', left: name, right: v }, vd);
 							function setFunctionName(newName) {
 								if (typeof newObj.left !== 'undefined')
-									newObj.left.name = newName;
+									newObj.left.left = newName;
 								else
-									newObj.name = newName;
+									newObj.left = newName;
 							}
 							switch (name) {
 								case 'sin':
@@ -189,9 +189,9 @@ function evalExpr(expr, cont) {
 									break;
 								default:
 									if (typeof newObj.left !== 'undefined')
-										newObj.left.name += '\'';
+										newObj.left.left += '\'';
 									else
-										newObj.name += '\'';
+										newObj.left += '\'';
 									break;
 							}
 							return thunk(cont, oldObj, newObj);
