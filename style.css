@@ -13,14 +13,14 @@ div {
 	padding: 0px 0px 0px 0px;
 }
 
-/* Whenever you hover over an expression, it and all parents will be highlighted in green */
+/* Whenever you hover over an expression, it and all parents will be highlighted in black */
 .equation:hover {
 	background-color: #000;
 	color: #fff;
 	padding: 2px 0px 2px 0px;
 }
 
-/* The first child expression(s) will be highlighted in blue */
+/* All other expressions will be shown with a white background */
 .equation:hover > .equation:not(:hover) {
 	background-color: #fff;
 	color: #000;
