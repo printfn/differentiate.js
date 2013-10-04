@@ -62,11 +62,11 @@
 	<script>
 		$(document).ready(function () {
 			$('#output').on('mouseenter mouseleave', '.equation', function() {
-				$(this).toggleClass('hover2');
+				$(this).toggleClass('hover');
 			});
 
 			$('#output').on('mouseover', '.equation', function (e) {
-				if ($(this).children('.hover2').length === 0) {
+				if ($(this).children('.hover').length === 0) {
 					$(this).addClass('highlight');
 					$(this).find('div').addClass('highlight'); // $().find() works like .children(), but it is recursive
 				}
