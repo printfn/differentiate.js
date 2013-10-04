@@ -61,17 +61,17 @@
 	<input type="checkbox" checked onclick="recalculate()" id="simplifyCheckbox2" />Simplify derivative<br>
 	<script>
 		$(document).ready(function () {
-			$('.equation').on('mouseenter mouseleave', function() {
+			$('#output').on('mouseenter mouseleave', '.equation', function() {
 				$(this).toggleClass('hover2');
 			});
 
-			$('.equation').on('mouseover', function (e) {
+			$('#output').on('mouseover', '.equation', function (e) {
 				if ($(this).children('.hover2').length === 0) {
 					$(this).addClass('hover');
 					$(this).find('div').addClass('hover'); // $().find() works like .children(), but it is recursive
 				}
 			});
-			$('.equation').on('mouseout', function (e) {
+			$('#output').on('mouseout', '.equation', function (e) {
 				$(this).removeClass('hover');
 				$(this).find('div').removeClass('hover');
 			});
