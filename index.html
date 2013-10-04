@@ -10,20 +10,23 @@
 	<script>
 		function recalculateDerivative() {
 			try {
-				var startTime = new Date().getTime(); // ms since 1970
-				var thunkValue = function (v, vd) {
-					return { tag: 'value', val: vd };
+				var differentiate = function () {
+					var startTime = new Date().getTime(); // ms since 1970
+					var thunkValue = function (v, vd) {
+						return { tag: 'value', val: vd };
+					}
+					var func = document.getElementById('functionTextBox').value;
+					var ast = simplifyExpression(parser.parse(func));
+					var result = trampoline(evalExpr(ast, thunkValue));
+					result = simplifyExpression(result);
+					var html = 'f\'(x) = ' + printTree(result);
+					var endTime = new Date().getTime();
+					var duration = endTime - startTime;
+					html += '<br><br>' + duration + 'ms';
+					return html;
 				}
-				var func = document.getElementById('functionTextBox').value;
-				var ast = parser.parse(func);
-				var result = trampoline(evalExpr(ast, thunkValue));
-				result = simplifyExpression(result);
-				var html = 'f\'(x) = ' + printTree(result);
-				var endTime = new Date().getTime();
-				var duration = endTime - startTime;
-				html += '<br><br>' + duration + 'ms';
 				document.getElementById('output').style.color = '#000';
-				document.getElementById('output').innerHTML = html;
+				document.getElementById('output').innerHTML = differentiate();
 			} catch (err) {
 				document.getElementById('output').style.color = '#f00';
 				var errorMessage = 'Invalid input.';
