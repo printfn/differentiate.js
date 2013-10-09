@@ -25,7 +25,7 @@
 					}
 
 					if ($('#differentiateCheckbox').is(':checked')) {
-						result = evalExpr(result, thunkValue)
+						result = differentiateExpression(result, thunkValue)
 						result = trampoline(result);
 					}
 

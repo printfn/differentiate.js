@@ -19,7 +19,7 @@ var exp = function (v1, v2) {
 	return result;
 }
 
-function evalExpr(expr, cont) {
+function differentiateExpression(expr, cont) {
 	if (typeof expr === 'number') {
 		return thunk(cont, expr, 0);
 	}
@@ -31,25 +31,25 @@ function evalExpr(expr, cont) {
 	switch (expr.tag) {
 		case 'addition':
 			return thunk(
-				evalExpr, expr.left, function (v1, v1d) {
+				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
-						evalExpr, expr.right, function (v2, v2d) {
+						differentiateExpression, expr.right, function (v2, v2d) {
 							return thunk(cont, add(v1, v2), add(v1d, v2d));
 						});
 				});
 		case 'subtraction':
 			return thunk(
-				evalExpr, expr.left, function (v1, v1d) {
+				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
-						evalExpr, expr.right, function (v2, v2d) {
+						differentiateExpression, expr.right, function (v2, v2d) {
 							return thunk(cont, sub(v1, v2), sub(v1d, v2d));
 						});
 				});
 		case 'multiplication':
 			return thunk(
-				evalExpr, expr.left, function (v1, v1d) {
+				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
-						evalExpr, expr.right, function (v2, v2d) {
+						differentiateExpression, expr.right, function (v2, v2d) {
 							if (!isNaN(v1) && !isNaN(v2)) {
 								// x*x -> 2x
 								if (v1 === 'x' && v2 === 'x') {
@@ -82,9 +82,9 @@ function evalExpr(expr, cont) {
 								f = v2;
 								fd = v2d;
 							} else if (!isNaN(v2d)) {
-								f = v1;
-								fd = v2d;
 								k = v2;
+								f = v1;
+								fd = v1d;
 							}
 							if (k === 0)
 								return thunk(cont, 0, 0);
@@ -95,9 +95,9 @@ function evalExpr(expr, cont) {
 				});
 		case 'exponent':
 			return thunk(
-				evalExpr, expr.left, function (v1, v1d) {
+				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
-						evalExpr, expr.right, function (v2, v2d) {
+						differentiateExpression, expr.right, function (v2, v2d) {
 							var x = v1;
 							var n = v2;
 							var newExponent = n-1;
@@ -110,9 +110,10 @@ function evalExpr(expr, cont) {
 				});
 		case 'division':
 			return thunk(
-				evalExpr, expr.left, function (v1, v1d) {
+				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
-						evalExpr, expr.right, function (v2, v2d) {
+						differentiateExpression, expr.right, function (v2, v2d) {
+							// (f/g)' -> (f'g - fg')/(g^2)
 							var v1dv2 = mul(v1d, v2);
 							var v1v2d = mul(v1, v2d);
 							var subtractionResult = sub(v1dv2, v1v2d);
@@ -123,11 +124,13 @@ function evalExpr(expr, cont) {
 				});
 		case 'function':
 			return thunk(
-				evalExpr, expr.left, function (name) {
+				differentiateExpression, expr.left, function (name) {
 					return thunk(
-						evalExpr, expr.right, function(v, vd) { // vd is the derivative of v
+						// vd is the derivative of v
+						differentiateExpression, expr.right, function(v, vd) {
 							if (typeof v === 'number') {
-								return thunk(cont, v, 0); // return 0 because argument is a number which makes the function constant
+								// return 0 because argument is a number which makes the function constant
+								return thunk(cont, v, 0);
 							}
 							var oldObj = { tag: 'function', left: name, right: v };
 							var newObj = mul({ tag: 'function', left: name, right: v }, vd);
@@ -146,7 +149,7 @@ function evalExpr(expr, cont) {
 									newObj = sub(0, newObj);
 									break;
 								case 'ln':
-									newObj = mul(div(1, v), vd);
+									newObj = mul(div(1, v), vd); // *vd: chain rule
 									break;
 								default:
 									if (typeof newObj.left !== 'undefined')
