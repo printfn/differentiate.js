@@ -1,30 +1,26 @@
-var simplifyExpression = function (tree) {
-	return simplifyNode(tree);
-}
-
-var simplifyNode = function (node) {
+var simplifyExpression = function (node) {
 	if (typeof node === 'number' || typeof node === 'string')
 		return node;
 
 	if (typeof node.left !== 'undefined' && typeof node.right !== 'undefined') {
-		node.left = simplifyNode(node.left);
-		node.right = simplifyNode(node.right);
+		node.left = simplifyExpression(node.left);
+		node.right = simplifyExpression(node.right);
 	}
 
 	var add = function (left, right) {
-		return simplifyNode({ tag: 'addition', left: left, right: right });
+		return simplifyExpression({ tag: 'addition', left: left, right: right });
 	}
 	var subtract = function (left, right) {
-		return simplifyNode({ tag: 'subtraction', left: left, right: right });
+		return simplifyExpression({ tag: 'subtraction', left: left, right: right });
 	}
 	var multiply = function (left, right) {
-		return simplifyNode({ tag: 'multiplication', left: left, right: right });
+		return simplifyExpression({ tag: 'multiplication', left: left, right: right });
 	}
 	var divide = function (left, right) {
-		return simplifyNode({ tag: 'division', left: left, right: right });
+		return simplifyExpression({ tag: 'division', left: left, right: right });
 	}
 	var exponent = function (left, right) {
-		return simplifyNode({ tag: 'exponent', left: left, right: right });
+		return simplifyExpression({ tag: 'exponent', left: left, right: right });
 	}
 
 	switch (node.tag) {
@@ -76,7 +72,7 @@ var simplifyNode = function (node) {
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return node.left * node.right;
 			if (compareNodes(node.left, node.right))
-				return simplifyNode({ tag: 'exponent', left: node.left, right: 2 });
+				return simplifyExpression({ tag: 'exponent', left: node.left, right: 2 });
 			if (typeof node.right.tag !== 'undefined') // (a*(a^b)) -> a^(b+1)
 				if (node.right.tag === 'exponent')
 					if (compareNodes(node.right.left, node.left))
@@ -89,10 +85,10 @@ var simplifyNode = function (node) {
 				if (node.right.tag === 'multiplication')
 					if (compareNodes(node.right.left, node.left))
 						return multiply(node.right.right, exponent(node.left, 2));
-			if (typeof node.left.tag !== 'undefined') // ((b*a)*a) -> (a^2)*b
+			if (typeof node.left.tag !== 'undefined') // ((b*a)*a) -> b*(a^2)
 				if (node.left.tag === 'multiplication')
 					if (compareNodes(node.left.right, node.right))
-						return multiply(exponent(node.right, 2), node.left.left);
+						return multiply(node.left.left, exponent(node.right, 2));
 			if (typeof node.right.tag !== 'undefined') // (a*((a^n)*b)) -> b*(a^(n+1))
 				if (node.right.tag === 'multiplication')
 					if (node.right.left.tag !== 'undefined')
@@ -133,12 +129,4 @@ var simplifyNode = function (node) {
 			return node;
 		}
 	}
-}
-
-var compareNodes = function (a, b) {
-	if (typeof a === 'number' || typeof a === 'string' || typeof b === 'number' || typeof b === 'string')
-		return a === b;
-	if (typeof a.tag !== 'undefined' && typeof a.left !== 'undefined' && typeof a.right !== 'undefined')
-		if (typeof b.tag !== 'undefined' && typeof b.left !== 'undefined' && typeof b.right !== 'undefined')
-			return compareNodes(a.tag, b.tag) && compareNodes(a.left, b.left) && compareNodes(a.right, b.right);
 }

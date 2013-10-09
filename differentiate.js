@@ -19,6 +19,15 @@ var exp = function (v1, v2) {
 	return result;
 }
 
+var compareNodes = function (a, b) {
+	if (typeof a === 'number' || typeof a === 'string' || typeof b === 'number' || typeof b === 'string')
+		return a === b;
+	if (typeof a.tag !== 'undefined' && typeof a.left !== 'undefined' && typeof a.right !== 'undefined')
+		if (typeof b.tag !== 'undefined' && typeof b.left !== 'undefined' && typeof b.right !== 'undefined')
+			return compareNodes(a.tag, b.tag) && compareNodes(a.left, b.left) && compareNodes(a.right, b.right);
+}
+
+
 function differentiateExpression(expr, cont) {
 	if (typeof expr === 'number') {
 		return thunk(cont, expr, 0);
