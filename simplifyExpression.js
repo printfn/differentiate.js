@@ -9,19 +9,19 @@ var simplifyExpression = function (node) {
 
 	var add = function (left, right) {
 		return simplifyExpression({ tag: 'addition', left: left, right: right });
-	}
+	};
 	var subtract = function (left, right) {
 		return simplifyExpression({ tag: 'subtraction', left: left, right: right });
-	}
+	};
 	var multiply = function (left, right) {
 		return simplifyExpression({ tag: 'multiplication', left: left, right: right });
-	}
+	};
 	var divide = function (left, right) {
 		return simplifyExpression({ tag: 'division', left: left, right: right });
-	}
+	};
 	var exponent = function (left, right) {
 		return simplifyExpression({ tag: 'exponent', left: left, right: right });
-	}
+	};
 
 	switch (node.tag) {
 		case 'addition': {
@@ -129,4 +129,4 @@ var simplifyExpression = function (node) {
 			return node;
 		}
 	}
-}
+};

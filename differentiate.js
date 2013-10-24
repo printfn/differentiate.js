@@ -1,23 +1,23 @@
 var add = function (v1, v2) {
 	var result = { tag: 'addition', left: v1, right: v2 };
 	return result;
-}
+};
 var sub = function (v1, v2) {
 	var result = { tag: 'subtraction', left: v1, right: v2 };
 	return result;
-}
+};
 var mul = function (v1, v2) {
 	var result = { tag: 'multiplication', left: v1, right: v2 };
 	return result;
-}
+};
 var div = function (v1, v2) {
 	var result = { tag: 'division', left: v1, right: v2 };
 	return result;
-}
+};
 var exp = function (v1, v2) {
 	var result = { tag: 'exponent', left: v1, right: v2 };
 	return result;
-}
+};
 
 var compareNodes = function (a, b) {
 	if (typeof a === 'number' || typeof a === 'string' || typeof b === 'number' || typeof b === 'string')
@@ -25,7 +25,7 @@ var compareNodes = function (a, b) {
 	if (typeof a.tag !== 'undefined' && typeof a.left !== 'undefined' && typeof a.right !== 'undefined')
 		if (typeof b.tag !== 'undefined' && typeof b.left !== 'undefined' && typeof b.right !== 'undefined')
 			return compareNodes(a.tag, b.tag) && compareNodes(a.left, b.left) && compareNodes(a.right, b.right);
-}
+};
 
 
 function differentiateExpression(expr, cont) {
@@ -177,7 +177,7 @@ var thunk = function (f) {
 	var args = Array.prototype.slice.call(arguments);
 	args.shift();
 	return { tag: 'thunk', func: f, args: args };
-}
+};
 
 var trampoline = function (thk) {
 	while (true) {
@@ -189,4 +189,4 @@ var trampoline = function (thk) {
 			throw new Error('Bad thunk');
 		}
 	}
-}
+};

@@ -26,4 +26,4 @@ var printTree = function (tree) {
 	if (tree.tag === 'exponent') {
 		return '<div class="equation">(' + printTree(tree.left) + ' ^ ' + printTree(tree.right) + ')</div>';
 	}
-}
+};
