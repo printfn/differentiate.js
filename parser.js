@@ -174,7 +174,38 @@ parser = (function(){
             pos = pos0;
           }
           if (result0 === null) {
-            result0 = parse_multiplicative();
+            pos0 = pos;
+            pos1 = pos;
+            if (input.charCodeAt(pos) === 45) {
+              result0 = "-";
+              pos++;
+            } else {
+              result0 = null;
+              if (reportFailures === 0) {
+                matchFailed("\"-\"");
+              }
+            }
+            if (result0 !== null) {
+              result1 = parse_additive();
+              if (result1 !== null) {
+                result0 = [result0, result1];
+              } else {
+                result0 = null;
+                pos = pos1;
+              }
+            } else {
+              result0 = null;
+              pos = pos1;
+            }
+            if (result0 !== null) {
+              result0 = (function(offset, right) { return { tag: 'subtraction', left: 0, right: right }; })(pos0, result0[1]);
+            }
+            if (result0 === null) {
+              pos = pos0;
+            }
+            if (result0 === null) {
+              result0 = parse_multiplicative();
+            }
           }
         }
         return result0;

@@ -6,6 +6,8 @@ additive
     { return { tag: 'addition', left: left, right: right }; }
   / left:multiplicative "-" right:additive
     { return { tag: 'subtraction', left: left, right: right }; }
+  / "-" right:additive
+    { return { tag: 'subtraction', left: 0, right: right }; }
   / multiplicative
 
 multiplicative
