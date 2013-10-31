@@ -37,7 +37,7 @@
 					var endTime = new Date().getTime();
 					var duration = endTime - startTime;
 					return 'f\'(x) = ' + result + '<br><br>' + duration + 'ms';
-				}
+				};
 				$('#output').css('color', '#000');
 				$('#output').html(differentiate());
 			} catch (err) {

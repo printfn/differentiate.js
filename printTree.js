@@ -1,29 +1,25 @@
-var printTree = function (tree) {
-	if (typeof tree === 'number' || typeof tree === 'string') {
-		return tree;
+var printTree = function (expr) {
+	if (typeof expr === 'number' || typeof expr === 'string') {
+		return expr;
 	}
 
-	if (tree.tag === 'function') {
-		return '<div class="equation">' + printTree(tree.left) + '(' + printTree(tree.right) + ')</div>';
-	}
+    var leftResult = printTree(expr.left);
+    var rightResult = printTree(expr.right);
+    
+    var removeBrackets = function(str) {
+        if (typeof str.indexOf !== 'undefined') {
+            var idx = str.indexOf('(');
+            if (idx != -1) {
+                str = str.slice(0, idx) + str.slice(idx+1);
+                idx = str.lastIndexOf(')');
+                str = str.slice(0, idx) + str.slice(idx+1);
+            }
+        }
+        return str;
+    };
 
-	if (tree.tag === 'addition') {
-		return '<div class="equation">(' + printTree(tree.left) + ' + ' + printTree(tree.right) + ')</div>';
-	}
+	if (expr.operator === 'functionCall')
+		return '<div class="equation">' + leftResult + '(' + removeBrackets(rightResult) + ')</div>';
 
-	if (tree.tag === 'subtraction') {
-		return '<div class="equation">(' + printTree(tree.left) + ' - ' + printTree(tree.right) + ')</div>';
-	}
-
-	if (tree.tag === 'multiplication') {
-		return '<div class="equation">(' + printTree(tree.left) + ' * ' + printTree(tree.right) + ')</div>';
-	}
-
-	if (tree.tag === 'division') {
-		return '<div class="equation">(' + printTree(tree.left) + ' / ' + printTree(tree.right) + ')</div>';
-	}
-
-	if (tree.tag === 'exponent') {
-		return '<div class="equation">(' + printTree(tree.left) + ' ^ ' + printTree(tree.right) + ')</div>';
-	}
+	return '<div class="equation">(' + leftResult + ' ' + expr.operator + ' ' + rightResult + ')</div>';
 };

@@ -1,36 +1,77 @@
 start
-  = additive
+  = additiveExpression
 
-additive
-  = left:multiplicative "+" right:additive
-    { return { tag: 'addition', left: left, right: right }; }
-  / left:multiplicative "-" right:additive
-    { return { tag: 'subtraction', left: left, right: right }; }
-  / "-" right:additive
-    { return { tag: 'subtraction', left: 0, right: right }; }
-  / multiplicative
+additiveOperator
+  = "+"
+  / "-"
 
-multiplicative
-  = left:exponent "*"? right:multiplicative
-    { return { tag: 'multiplication', left: left, right: right }; }
-  / left:exponent "/" right:multiplicative
-    { return { tag: 'division', left: left, right: right }; }
-  / exponent
+multiplicativeOperator
+  = "*"
+  / "/"
 
-exponent
-  = left:primary "^" right:exponent
-    { return { tag: 'exponent', left: left, right: right }; }
-  / primary
+exponentialOperator
+  = "^"
 
-primary
+additiveExpression
+  = head:multiplicativeExpression
+    tail:(_ additiveOperator _ multiplicativeExpression)* {
+      var result = head;
+      for (var i = 0; i < tail.length; i++) {
+        result = {
+          operator: tail[i][1],
+          left:     result,
+          right:    tail[i][3]
+        };
+      }
+      return result;
+    }
+
+multiplicativeExpression
+  = head:exponentialExpression
+    tail:(_ multiplicativeOperator _ exponentialExpression)* {
+      var result = head;
+      for (var i = 0; i < tail.length; i++) {
+        result = {
+          operator: tail[i][1],
+          left:     result,
+          right:    tail[i][3]
+        };
+      }
+      return result;
+    }
+
+exponentialExpression
+  = head:unaryExpression _ op:exponentialOperator _ tail:exponentialExpression {
+      return {
+          operator: op,
+          left:     head,
+          right:    tail
+      };
+    }
+  / unaryExpression
+
+unaryExpression
   = integer
-  / function
   / "x"
-  / "(" additive:additive ")" { return additive; }
+  / functionCallExpression
+  / "(" _ expr:additiveExpression _ ")" _
+    { return expr; }
 
-function
-  = name:[a-zA-Z]+ "(" args:additive ")"
-    { return { tag: 'function', left: name.join(""), right: args }; }
+functionCallExpression
+  = head:identifier _ "(" _ tail:additiveExpression _ ")"
+    { return {
+          operator: "functionCall",
+          left:     head,
+          right:    tail
+      };
+    }
+
+identifier = name:[a-zA-Z]+ { return name.join(""); }
 
 integer "integer"
   = digits:[0-9]+ { return parseInt(digits.join("")); }
+
+_ = whitespace / ""
+
+whitespace "whitespace"
+  = [\r\n\t\v\f \u00A0\uFEFF]

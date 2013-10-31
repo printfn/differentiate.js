@@ -1,30 +1,29 @@
 var add = function (v1, v2) {
-	var result = { tag: 'addition', left: v1, right: v2 };
+	var result = { operator: '+', left: v1, right: v2 };
 	return result;
 };
 var sub = function (v1, v2) {
-	var result = { tag: 'subtraction', left: v1, right: v2 };
+	var result = { operator: '-', left: v1, right: v2 };
 	return result;
 };
 var mul = function (v1, v2) {
-	var result = { tag: 'multiplication', left: v1, right: v2 };
+	var result = { operator: '*', left: v1, right: v2 };
 	return result;
 };
 var div = function (v1, v2) {
-	var result = { tag: 'division', left: v1, right: v2 };
+	var result = { operator: '/', left: v1, right: v2 };
 	return result;
 };
 var exp = function (v1, v2) {
-	var result = { tag: 'exponent', left: v1, right: v2 };
+	var result = { operator: '^', left: v1, right: v2 };
 	return result;
 };
 
 var compareNodes = function (a, b) {
 	if (typeof a === 'number' || typeof a === 'string' || typeof b === 'number' || typeof b === 'string')
 		return a === b;
-	if (typeof a.tag !== 'undefined' && typeof a.left !== 'undefined' && typeof a.right !== 'undefined')
-		if (typeof b.tag !== 'undefined' && typeof b.left !== 'undefined' && typeof b.right !== 'undefined')
-			return compareNodes(a.tag, b.tag) && compareNodes(a.left, b.left) && compareNodes(a.right, b.right);
+	if (typeof a.operator !== 'undefined' && typeof b.operator !== 'undefined')
+		return compareNodes(a.operator, b.operator) && compareNodes(a.left, b.left) && compareNodes(a.right, b.right);
 };
 
 
@@ -37,8 +36,8 @@ function differentiateExpression(expr, cont) {
 			return thunk(cont, 'x', 1);
 		return thunk(cont, expr, expr);
 	}
-	switch (expr.tag) {
-		case 'addition':
+	switch (expr.operator) {
+		case '+':
 			return thunk(
 				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
@@ -46,7 +45,7 @@ function differentiateExpression(expr, cont) {
 							return thunk(cont, add(v1, v2), add(v1d, v2d));
 						});
 				});
-		case 'subtraction':
+		case '-':
 			return thunk(
 				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
@@ -54,7 +53,7 @@ function differentiateExpression(expr, cont) {
 							return thunk(cont, sub(v1, v2), sub(v1d, v2d));
 						});
 				});
-		case 'multiplication':
+		case '*':
 			return thunk(
 				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
@@ -102,7 +101,7 @@ function differentiateExpression(expr, cont) {
 							return thunk(cont, mul(k, f), mul(k, fd));
 						});
 				});
-		case 'exponent':
+		case '^':
 			return thunk(
 				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
@@ -117,7 +116,7 @@ function differentiateExpression(expr, cont) {
 							return thunk(cont, oldObj, newObj);
 						});
 				});
-		case 'division':
+		case '/':
 			return thunk(
 				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
@@ -131,7 +130,7 @@ function differentiateExpression(expr, cont) {
 							return thunk(cont, div(v1, v2), derivative);
 						});
 				});
-		case 'function':
+		case 'functionCall':
 			return thunk(
 				differentiateExpression, expr.left, function (name) {
 					return thunk(
@@ -141,8 +140,8 @@ function differentiateExpression(expr, cont) {
 								// return 0 because argument is a number which makes the function constant
 								return thunk(cont, v, 0);
 							}
-							var oldObj = { tag: 'function', left: name, right: v };
-							var newObj = mul({ tag: 'function', left: name, right: v }, vd);
+							var oldObj = { operator: 'functionCall', left: name, right: v };
+							var newObj = mul({ operator: 'functionCall', left: name, right: v }, vd);
 							function setFunctionName(newName) {
 								if (typeof newObj.left !== 'undefined')
 									newObj.left.left = newName;
