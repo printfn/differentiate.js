@@ -152,6 +152,9 @@ parser = (function(){
               matchFailed("\"/\"");
             }
           }
+          if (result0 === null) {
+            result0 = "";
+          }
         }
         return result0;
       }
@@ -342,8 +345,12 @@ parser = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
+                var operator = tail[i][1];
+                if (operator == "") {
+                  operator = "*"
+                }
                 result = {
-                  operator: tail[i][1],
+                  operator: operator,
                   left:     result,
                   right:    tail[i][3]
                 };

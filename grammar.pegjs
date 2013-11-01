@@ -8,6 +8,7 @@ additiveOperator
 multiplicativeOperator
   = "*"
   / "/"
+  / ""
 
 exponentialOperator
   = "^"
@@ -31,8 +32,12 @@ multiplicativeExpression
     tail:(_ multiplicativeOperator _ exponentialExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
+        var operator = tail[i][1];
+        if (operator == "") {
+          operator = "*"
+        }
         result = {
-          operator: tail[i][1],
+          operator: operator,
           left:     result,
           right:    tail[i][3]
         };
