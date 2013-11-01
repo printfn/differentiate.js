@@ -32,7 +32,7 @@ var simplifyExpression = function (node) {
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return node.left + node.right;
 			if (compareNodes(node.left, node.right))
-				return { operator: 'multiplication', left: node.left, right: 2 };
+				return multiply(2, node.left);
 			if (typeof node.right.operator !== 'undefined') // (a+(a*b)) -> (a*(b+1))
 				if (node.right.operator === '*')
 					if (compareNodes(node.right.left, node.left))
