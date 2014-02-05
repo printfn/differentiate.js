@@ -19,6 +19,7 @@
 					var result = document.getElementById('functionTextBox').value;
 
 					result = parser.parse(result);
+					var addDashToFunction = false;
 
 					if ($('#simplifyCheckbox1').is(':checked')){
 						result = simplifyExpression(result);
@@ -27,6 +28,7 @@
 					if ($('#differentiateCheckbox').is(':checked')) {
 						result = differentiateExpression(result, thunkValue)
 						result = trampoline(result);
+						addDashToFunction = true;
 					}
 
 					if ($('#simplifyCheckbox2').is(':checked')){
@@ -36,7 +38,7 @@
 					result = printTree(result);
 					var endTime = new Date().getTime();
 					var duration = endTime - startTime;
-					return 'f\'(x) = ' + result + '<br><br>' + duration + 'ms';
+					return 'f' + (addDashToFunction ? '\'' : '') + '(x) = ' + result + '<br><br>' + duration + 'ms';
 				};
 				$('#output').css('color', '#000');
 				$('#output').html(differentiate());
