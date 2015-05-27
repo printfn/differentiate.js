@@ -1,25 +1,35 @@
 var printTree = function (expr) {
-	if (typeof expr === 'number' || typeof expr === 'string') {
-		return expr;
-	}
+    var treeToString = function (expr) {
+    	if (typeof expr === 'number')
+    		return '' + expr;
+        if (typeof expr === 'string')
+            return expr;
 
-    var leftResult = printTree(expr.left);
-    var rightResult = printTree(expr.right);
-    
-    var removeBrackets = function(str) {
-        if (typeof str.indexOf !== 'undefined') {
-            var idx = str.indexOf('(');
-            if (idx != -1) {
-                str = str.slice(0, idx) + str.slice(idx+1);
-                idx = str.lastIndexOf(')');
-                str = str.slice(0, idx) + str.slice(idx+1);
-            }
+        var leftResult = treeToString(expr.left);
+        var rightResult = treeToString(expr.right);
+
+        if (expr.operator === 'functionCall') {
+            if (leftResult[0] === '|')
+                leftResult = leftResult.substring(1);
+            if (rightResult[0] === '|')
+                rightResult = rightResult.substring(1);
+            return '<div class="equation">' + leftResult + '(' + rightResult + ')</div>';
         }
-        return str;
-    };
 
-	if (expr.operator === 'functionCall')
-		return '<div class="equation">' + leftResult + '(' + removeBrackets(rightResult) + ')</div>';
+        if (leftResult[0] === '|') {
+            leftResult = '(' + leftResult.substring(1) + ')';
+        }
+        if (rightResult[0] === '|') {
+            rightResult = '(' + rightResult.substring(1) + ')';
+        }
 
-	return '<div class="equation">(' + leftResult + ' ' + expr.operator + ' ' + rightResult + ')</div>';
+        // pipe is removed later, means that brackets are required aroung returned expr
+        return '|' + leftResult + ' ' + expr.operator + ' ' + rightResult;
+    }
+
+    return ('<div class="equation">'
+        + treeToString(expr).replace(/^\|/, '')
+            .replace(/\(/g, '<div class="equation">(')
+            .replace(/\)/g, ')</div>')
+        + '</div>');
 };
