@@ -168,7 +168,7 @@ function differentiateExpression(expr, cont) {
 									newObj = sub(0, newObj);
 									break;
 								case 'ln':
-									newObj = mul(div(1, v), vd); // *vd: chain rule
+									newObj = div(vd, v); // *vd: chain rule
 									break;
 								default:
 									if (typeof newObj.left !== 'undefined')
