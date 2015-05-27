@@ -121,8 +121,6 @@ var simplifyExpression = function (node) {
 				return node.left;
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return Math.pow(node.left, node.right);
-			if (compareNodes(node.left, node.right))
-				return 1;
 			return node;
 		}
 		case 'functionCall': {
