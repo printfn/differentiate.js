@@ -106,14 +106,25 @@ function differentiateExpression(expr, cont) {
 				differentiateExpression, expr.left, function (v1, v1d) {
 					return thunk(
 						differentiateExpression, expr.right, function (v2, v2d) {
-							var x = v1;
-							var n = v2;
-							var newExponent = n-1;
-							if (typeof newExponent === 'undefined' || isNaN(newExponent))
-								newExponent = sub(n, 1);
-							var oldObj = exp(x, n);
-							var newObj = mul(v1d, mul(n, exp(x, newExponent)));
-							return thunk(cont, oldObj, newObj);
+							//  f ^g  ' = f ^g *(f'  g /f +  g'  ln(f ))
+							// (v1^v2)' = v1^v2*(v1d*v2/v1 + v2d*ln(v1))
+							var l = exp(v1, v2)
+							var r = add(
+								div(
+									mul(v1d, v2),
+									v1
+								),
+								mul(
+									v2d,
+									{
+										operator: 'functionCall',
+										left: 'ln',
+										right: v1
+									}
+								)
+							);
+							var res = mul(l, r);
+							return thunk(cont, exp(v1, v2), res);
 						});
 				});
 		case '/':
