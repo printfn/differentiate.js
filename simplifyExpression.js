@@ -71,16 +71,20 @@ var simplifyExpression = function (node) {
 				return node.left;
 			if (!isNaN(node.left) && !isNaN(node.right))
 				return node.left * node.right;
+            if (typeof node.right.operator !== 'undefined') // (a*(a^b)) -> a^(b+1)
+                if (node.right.operator === '*')
+                    if (!isNaN(node.left) && !isNaN(node.right.left))
+                        return multiply(node.left * node.right.left, node.right.right);
 			if (compareNodes(node.left, node.right))
 				return simplifyExpression({ operator: '^', left: node.left, right: 2 });
 			if (typeof node.right.operator !== 'undefined') // (a*(a^b)) -> a^(b+1)
 				if (node.right.operator === '^')
 					if (compareNodes(node.right.left, node.left))
-						return exponent(node.left, node.right.right + 1);
+						return exponent(node.left, add(node.right.right, 1));
 			if (typeof node.left.operator !== 'undefined') // ((a^b)*a) -> a^(b+1)
 				if (node.left.operator === '^')
 					if (compareNodes(node.left.left, node.right))
-						return exponent(node.right, node.left.right + 1);
+						return exponent(node.right, add(node.left.right, 1));
 			if (typeof node.right.operator !== 'undefined') // (a*(a*b)) -> (a^2)*b
 				if (node.right.operator === '*')
 					if (compareNodes(node.right.left, node.left))
@@ -95,6 +99,12 @@ var simplifyExpression = function (node) {
 						if (node.right.left.operator === '^')
 							if (compareNodes(node.right.left.left, node.left))
 								return multiply(node.right.right, exponent(node.left, add(node.right.left.right, 1)));
+            if (typeof node.left.operator !== 'undefined') // ((a^b)*(c/a)) -> c*(a^(b-1))
+                if (node.left.operator === '^')
+                    if (typeof node.right.operator !== 'undefined') // ((a^b)*(c/a)) -> c*(a^(b-1))
+                        if (node.right.operator === '/')
+                            if (compareNodes(node.left.left, node.right.right))
+                                return multiply(node.right.left, exponent(node.left.left, subtract(node.left.right, 1)));
 			return node;
 		}
 		case '/': {
