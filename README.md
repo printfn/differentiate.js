@@ -8,5 +8,6 @@ differentiate the expression, followed simplifying the tree and outputting the r
 ### TODO
 
  - Better, more consistent simplification of expressions
- - More features (logs, exponents, etc.)
  - Better user interface
+
+Click [here](https://rawgit.com/printfn/differentiate.js/master/index.html) for a live demo of this project.
