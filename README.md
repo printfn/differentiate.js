@@ -10,4 +10,4 @@ differentiate the expression, followed simplifying the tree and outputting the r
  - Better, more consistent simplification of expressions
  - Better user interface
 
-Click [here](https://rawgit.com/printfn/differentiate.js/master/index.html) for a live demo of this project.
+Click [here](https://printfn.github.io/differentiate.js/index.html) for a live demo of this project.
