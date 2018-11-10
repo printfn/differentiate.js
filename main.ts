@@ -291,6 +291,7 @@ var simplifyExpression = function (node: Expr): Expr {
 };
 
 function recalculate() {
+	var outputElement = document!.getElementById('output')!;
 	try {
 		var differentiate = function () {
 			var startTime = new Date().getTime(); // ms since 1970
@@ -318,21 +319,21 @@ function recalculate() {
 			var primeToAdd = addPrimeToFunction ? `'` : ``;
 			return `f${primeToAdd}(x) = ${result}<br><br>${duration}ms`;
 		};
-		$('#output').css('color', '#000');
-		$('#output').html(differentiate());
+		outputElement.style.color = '#000';
+		outputElement.innerHTML = differentiate();
 	} catch (err) {
-		$('#output').css('color', '#f00');
+		outputElement.style.color = '#f00';
 		var errorMessage = 'Invalid input.';
 		if (err.message) {
 			errorMessage += ' ' + err.message;
 		} else if (typeof err === 'string') {
 			errorMessage += ' ' + err;
 		}
-		$('#output').html(errorMessage);
+		outputElement.innerHTML = errorMessage;
 	}
 }
 
-$(document).ready(function () {
+window.onload = function () {
 	$('#output').on('mouseenter mouseleave', '.equation', function() {
 		$(this).toggleClass('hover');
 	});
@@ -347,4 +348,4 @@ $(document).ready(function () {
 		$(this).removeClass('highlight');
 		$(this).find('div').removeClass('highlight');
 	});
-});
+};
