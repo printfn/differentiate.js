@@ -325,6 +325,8 @@ function recalculate() {
 		var errorMessage = 'Invalid input.';
 		if (err.message) {
 			errorMessage += ' ' + err.message;
+		} else if (typeof err === 'string') {
+			errorMessage += ' ' + err;
 		}
 		$('#output').html(errorMessage);
 	}

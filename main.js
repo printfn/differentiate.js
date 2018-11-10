@@ -295,6 +295,9 @@ function recalculate() {
         if (err.message) {
             errorMessage += ' ' + err.message;
         }
+        else if (typeof err === 'string') {
+            errorMessage += ' ' + err;
+        }
         $('#output').html(errorMessage);
     }
 }
