@@ -107,7 +107,7 @@ function differentiateExpression(expr: Expr): Expr {
 				case 'ln':
 					return div(v2d, v2); // chain rule
 			}
-			var res = mul({operator: 'functionCall', left: v1d, right: v2}, v2d);
+			return mul({operator: 'functionCall', left: v1d, right: v2}, v2d);
 		}
 	}
 	throw "No matching case in 'differentiate'"
