@@ -1,6 +1,6 @@
 type Expr = number | string | { operator: string, left: Expr, right: Expr }
 type Thunk = { tag: 'thunk', func: (...args: any[]) => any, args: any[] } | { tag: 'value', val: Expr }
-declare var parser: any
+declare var parser: { parse: (input: string) => Expr }
 
 var add = function (v1: Expr, v2: Expr) {
 	var result = { operator: '+', left: v1, right: v2 };
@@ -179,23 +179,23 @@ var simplifyExpression = function (node: Expr): Expr {
 				return node.right;
 			if (compareNodes(node.right, 0))
 				return node.left;
-			if (!isNaN(node.left) && !isNaN(node.right))
+			if (typeof node.left === 'number' && typeof node.right === 'number')
 				return node.left + node.right;
 			if (compareNodes(node.left, node.right))
 				return multiply(2, node.left);
-			if (typeof node.right.operator !== 'undefined') // (a+(a*b)) -> (a*(b+1))
+			if (typeof node.right === 'object') // (a+(a*b)) -> (a*(b+1))
 				if (node.right.operator === '*')
 					if (compareNodes(node.right.left, node.left))
 						return multiply(node.left, add(node.right.right, 1));
-			if (typeof node.right.operator !== 'undefined') // (a+(b*a)) -> (a*(b+1))
+			if (typeof node.right === 'object') // (a+(b*a)) -> (a*(b+1))
 				if (node.right.operator === '*')
 					if (compareNodes(node.right.right, node.left))
 						return multiply(node.left, add(node.right.left, 1));
-			if (typeof node.left.operator !== 'undefined') // ((a*b)+a) -> (a*(b+1))
+			if (typeof node.left === 'object') // ((a*b)+a) -> (a*(b+1))
 				if (node.left.operator === '*')
 					if (compareNodes(node.left.left, node.right))
 						return multiply(node.right, add(node.left.right, 1));
-			if (typeof node.left.operator !== 'undefined') // ((b*a)+a) -> (a*(b+1))
+			if (typeof node.left === 'object') // ((b*a)+a) -> (a*(b+1))
 				if (node.left.operator === '*')
 					if (compareNodes(node.left.right, node.right))
 						return multiply(node.right, add(node.left.left, 1));
@@ -204,7 +204,7 @@ var simplifyExpression = function (node: Expr): Expr {
 		case '-': {
 			if (compareNodes(node.right, 0))
 				return node.left;
-			if (!isNaN(node.left) && !isNaN(node.right))
+			if (typeof node.left === 'number' && typeof node.right === 'number')
 				return node.left - node.right;
 			if (compareNodes(node.left, node.right))
 				return 0;
@@ -219,39 +219,39 @@ var simplifyExpression = function (node: Expr): Expr {
 				return node.right;
 			if (compareNodes(node.right, 1))
 				return node.left;
-			if (!isNaN(node.left) && !isNaN(node.right))
+			if (typeof node.left === 'number' && typeof node.right === 'number')
 				return node.left * node.right;
-            if (typeof node.right.operator !== 'undefined') // (a*(a^b)) -> a^(b+1)
+            if (typeof node.right === 'object') // (a*(a^b)) -> a^(b+1)
                 if (node.right.operator === '*')
-                    if (!isNaN(node.left) && !isNaN(node.right.left))
+                    if (typeof node.left === 'number' && typeof node.right.left === 'number')
                         return multiply(node.left * node.right.left, node.right.right);
 			if (compareNodes(node.left, node.right))
 				return simplifyExpression({ operator: '^', left: node.left, right: 2 });
-			if (typeof node.right.operator !== 'undefined') // (a*(a^b)) -> a^(b+1)
+			if (typeof node.right === 'object') // (a*(a^b)) -> a^(b+1)
 				if (node.right.operator === '^')
 					if (compareNodes(node.right.left, node.left))
 						return exponent(node.left, add(node.right.right, 1));
-			if (typeof node.left.operator !== 'undefined') // ((a^b)*a) -> a^(b+1)
+			if (typeof node.left === 'object') // ((a^b)*a) -> a^(b+1)
 				if (node.left.operator === '^')
 					if (compareNodes(node.left.left, node.right))
 						return exponent(node.right, add(node.left.right, 1));
-			if (typeof node.right.operator !== 'undefined') // (a*(a*b)) -> (a^2)*b
+			if (typeof node.right === 'object') // (a*(a*b)) -> (a^2)*b
 				if (node.right.operator === '*')
 					if (compareNodes(node.right.left, node.left))
 						return multiply(node.right.right, exponent(node.left, 2));
-			if (typeof node.left.operator !== 'undefined') // ((b*a)*a) -> b*(a^2)
+			if (typeof node.left === 'object') // ((b*a)*a) -> b*(a^2)
 				if (node.left.operator === '*')
 					if (compareNodes(node.left.right, node.right))
 						return multiply(node.left.left, exponent(node.right, 2));
-			if (typeof node.right.operator !== 'undefined') // (a*((a^n)*b)) -> b*(a^(n+1))
+			if (typeof node.right === 'object') // (a*((a^n)*b)) -> b*(a^(n+1))
 				if (node.right.operator === '*')
-					if (node.right.left.operator !== 'undefined')
+					if (typeof node.right.left === 'object')
 						if (node.right.left.operator === '^')
 							if (compareNodes(node.right.left.left, node.left))
 								return multiply(node.right.right, exponent(node.left, add(node.right.left.right, 1)));
-            if (typeof node.left.operator !== 'undefined') // ((a^b)*(c/a)) -> c*(a^(b-1))
+            if (typeof node.left === 'object') // ((a^b)*(c/a)) -> c*(a^(b-1))
                 if (node.left.operator === '^')
-                    if (typeof node.right.operator !== 'undefined') // ((a^b)*(c/a)) -> c*(a^(b-1))
+                    if (typeof node.right === 'object') // ((a^b)*(c/a)) -> c*(a^(b-1))
                         if (node.right.operator === '/')
                             if (compareNodes(node.left.left, node.right.right))
                                 return multiply(node.right.left, exponent(node.left.left, subtract(node.left.right, 1)));
@@ -264,7 +264,7 @@ var simplifyExpression = function (node: Expr): Expr {
 				return NaN;
 			if (compareNodes(node.right, 1))
 				return node.left;
-			if (!isNaN(node.left) && !isNaN(node.right))
+			if (typeof node.left === 'number' && typeof node.right === 'number')
 				return node.left / node.right;
 			if (compareNodes(node.left, node.right))
 				return 1;
@@ -279,7 +279,7 @@ var simplifyExpression = function (node: Expr): Expr {
 				return 1;
 			if (compareNodes(node.right, 1))
 				return node.left;
-			if (!isNaN(node.left) && !isNaN(node.right))
+			if (typeof node.left === 'number' && typeof node.right === 'number')
 				return Math.pow(node.left, node.right);
 			return node;
 		}
@@ -287,15 +287,16 @@ var simplifyExpression = function (node: Expr): Expr {
 			return node;
 		}
 	}
+	throw "No matching case in 'simplify'"
 };
 
 function recalculate() {
 	try {
 		var differentiate = function () {
 			var startTime = new Date().getTime(); // ms since 1970
-			var result = document.getElementById('functionTextBox').value;
+			var input = (<HTMLInputElement>document!.getElementById('functionTextBox')!).value;
 
-			result = parser.parse(result);
+			var result = parser.parse(input);
 			var addPrimeToFunction = false;
 
 			if ($('#simplifyCheckbox1').is(':checked')){
