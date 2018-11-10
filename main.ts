@@ -200,6 +200,11 @@ var simplifyExpression = function (node: Expr): Expr {
 				if (node.left.operator === '*')
 					if (compareNodes(node.left.right, node.right))
 						return multiply(node.right, add(node.left.left, 1));
+			// ((a*x)+(b*x)) -> (a+b)*x)
+			if (typeof node.left === 'object' && node.left.operator === '*')
+				if (typeof node.right === 'object' && node.right.operator === '*')
+					if (compareNodes(node.left.right, node.right.right))
+						return multiply(add(node.left.left, node.right.left), node.left.right);
 			return node;
 		}
 		case '-': {
