@@ -32,178 +32,85 @@ var compareNodes = function (a: Expr, b: Expr): boolean {
 };
 
 
-function differentiateExpression(expr: Expr, cont: (v: Expr, vd: Expr) => Thunk): Thunk {
+function differentiateExpression(expr: Expr): Expr {
 	if (typeof expr === 'number') {
-		return thunk(cont, expr, 0);
+		return 0;
 	}
 	if (typeof expr === 'string') {
 		if (expr === 'x')
-			return thunk(cont, 'x', 1);
-		return thunk(cont, expr, expr);
+			return 1;
+		return expr;
 	}
+	var v1 = expr.left;
+	var v2 = expr.right;
 	switch (expr.operator) {
-		case '+':
-			return thunk(
-				differentiateExpression, expr.left, function (v1, v1d) {
-					return thunk(
-						differentiateExpression, expr.right, function (v2, v2d) {
-							return thunk(cont, add(v1, v2), add(v1d, v2d));
-						});
-				});
-		case '-':
-			return thunk(
-				differentiateExpression, expr.left, function (v1, v1d) {
-					return thunk(
-						differentiateExpression, expr.right, function (v2, v2d) {
-							return thunk(cont, sub(v1, v2), sub(v1d, v2d));
-						});
-				});
-		case '*':
-			return thunk(
-				differentiateExpression, expr.left, function (v1, v1d) {
-					return thunk(
-						differentiateExpression, expr.right, function (v2, v2d) {
-							if (!isNaN(v1) && !isNaN(v2)) {
-								// x*x -> 2x
-								if (v1 === 'x' && v2 === 'x') {
-									return thunk(cont, mul('x', 'x'), mul(2, 'x'));
-								}
-								// Coefficient and x
-								// kx -> k
-								if (v2 === 'x')
-									return thunk(cont, mul(v1, v2), v1);
-								if (v1 === 'x')
-									return thunk(cont, mul(v2, v1), v2);
-
-								if (v1d === 0 || v2d === 0) {
-									// 0 * 0 = 0
-									return thunk(cont, mul(v1, v2), 0);
-								}
-							}
-
-
-							if (isNaN(v1) && isNaN(v2)) {
-								// (fg)' -> f'g + g'f
-								return thunk(cont, mul(v1, v2), add(mul(v1d, v2), mul(v1, v2d)));
-							}
-
-							// Coeffient and function
-							// kf -> kf'
-							var k, f, fd;
-							if (!isNaN(v1d)) {
-								k = v1;
-								f = v2;
-								fd = v2d;
-							} else if (!isNaN(v2d)) {
-								k = v2;
-								f = v1;
-								fd = v1d;
-							}
-							if (k === 0)
-								return thunk(cont, 0, 0);
-							if (k === 1)
-								return thunk(cont, f, fd);
-							return thunk(cont, mul(k, f), mul(k, fd));
-						});
-				});
-		case '^':
-			return thunk(
-				differentiateExpression, expr.left, function (v1, v1d) {
-					return thunk(
-						differentiateExpression, expr.right, function (v2, v2d) {
-							//  f ^g  ' = f ^g *(f'  g /f +  g'  ln(f ))
-							// (v1^v2)' = v1^v2*(v1d*v2/v1 + v2d*ln(v1))
-							var l = exp(v1, v2)
-							var r = add(
-								div(
-									mul(v1d, v2),
-									v1
-								),
-								mul(
-									v2d,
-									{
-										operator: 'functionCall',
-										left: 'ln',
-										right: v1
-									}
-								)
-							);
-							var res = mul(l, r);
-							return thunk(cont, exp(v1, v2), res);
-						});
-				});
-		case '/':
-			return thunk(
-				differentiateExpression, expr.left, function (v1, v1d) {
-					return thunk(
-						differentiateExpression, expr.right, function (v2, v2d) {
-							// (f/g)' -> (f'g - fg')/(g^2)
-							var v1dv2 = mul(v1d, v2);
-							var v1v2d = mul(v1, v2d);
-							var subtractionResult = sub(v1dv2, v1v2d);
-							var v2v2 = mul(v2, v2);
-							var derivative = div(subtractionResult, v2v2);
-							return thunk(cont, div(v1, v2), derivative);
-						});
-				});
-		case 'functionCall':
-			return thunk(
-				differentiateExpression, expr.left, function (name: string) {
-					return thunk(
-						// vd is the derivative of v
-						differentiateExpression, expr.right, function(v: Expr, vd: Expr) {
-							if (typeof v === 'number') {
-								// return 0 because argument is a number which makes the function constant
-								return thunk(cont, v, 0);
-							}
-							var oldObj = { operator: 'functionCall', left: name, right: v };
-							var newObj = mul({ operator: 'functionCall', left: name, right: v }, vd);
-							function setFunctionName(newName: string) {
-								if (typeof newObj.left !== 'undefined')
-									newObj.left.left = newName;
-								else
-									newObj.left = newName;
-							}
-							switch (name) {
-								case 'sin':
-									setFunctionName('cos');
-									break;
-								case 'cos':
-									setFunctionName('sin');
-									newObj = sub(0, newObj);
-									break;
-								case 'ln':
-									newObj = div(vd, v); // *vd: chain rule
-									break;
-								default:
-									if (typeof newObj.left !== 'undefined')
-										newObj.left.left += '\'';
-									else
-										newObj.left += '\'';
-									break;
-							}
-							return thunk(cont, oldObj, newObj);
-						});
-				});
+		case '+': {
+			var a = differentiateExpression(expr.left);
+			var b = differentiateExpression(expr.right);
+			return add(a, b);
+		}
+		case '-': {
+			var a = differentiateExpression(expr.left);
+			var b = differentiateExpression(expr.right);
+			return sub(a, b);
+		}
+		case '*': {
+			var v1d = differentiateExpression(v1);
+			var v2d = differentiateExpression(v2);
+			return add(mul(v1d, v2), mul(v1, v2d));
+		}
+		case '^': {
+			//  f ^g  ' = f ^g *(f'  g /f +  g'  ln(f ))
+			// (v1^v2)' = v1^v2*(v1d*v2/v1 + v2d*ln(v1))
+			var v1d = differentiateExpression(v1);
+			var v2d = differentiateExpression(v2);
+			var l = exp(v1, v2)
+			var r = add(
+				div(
+					mul(v1d, v2),
+					v1
+				),
+				mul(
+					v2d,
+					{
+						operator: 'functionCall',
+						left: 'ln',
+						right: v1
+					}
+				)
+			);
+			var res = mul(l, r);
+			return res;
+		}
+		case '/': {
+			var v1d = differentiateExpression(v1);
+			var v2d = differentiateExpression(v2);
+			// (f/g)' -> (f'g - fg')/(g^2)
+			var v1dv2 = mul(v1d, v2);
+			var v1v2d = mul(v1, v2d);
+			var subtractionResult = sub(v1dv2, v1v2d);
+			var v2v2 = mul(v2, v2);
+			var derivative = div(subtractionResult, v2v2);
+			return derivative;
+		}
+		case 'functionCall': {
+			if (typeof v1 !== 'string')
+				throw "Invalid data structure";
+			let v1d = v1 + `'`;
+			var v2d = differentiateExpression(v2);
+			switch (v1) {
+				case 'sin':
+					return mul({operator: 'functionCall', left: 'cos', right: v2}, v2d);
+				case 'cos':
+					return sub(0, mul({operator: 'functionCall', left: 'sin', right: v2}, v2d));
+				case 'ln':
+					return div(v2d, v2); // chain rule
+			}
+			var res = mul({operator: 'functionCall', left: v1d, right: v2}, v2d);
+		}
 	}
 	throw "No matching case in 'differentiate'"
 }
-
-var thunk = function (f: (...args: any[]) => Thunk, ...args: any[]): Thunk {
-	return { tag: 'thunk', func: f, args: args };
-};
-
-var trampoline = function (thk: Thunk) {
-	while (true) {
-		if (thk.tag === 'value') {
-			return thk.val;
-		} else if (thk.tag === 'thunk') {
-			thk = thk.func.apply(null, thk.args);
-		} else {
-			throw new Error('Bad thunk');
-		}
-	}
-};
 
 var printTree = function (expr: Expr) {
     var treeToString = function (expr: Expr): string {
@@ -386,9 +293,6 @@ function recalculate() {
 	try {
 		var differentiate = function () {
 			var startTime = new Date().getTime(); // ms since 1970
-			var thunkValue = function (v, vd): Thunk {
-				return { tag: 'value', val: vd };
-			};
 			var result = document.getElementById('functionTextBox').value;
 
 			result = parser.parse(result);
@@ -399,8 +303,7 @@ function recalculate() {
 			}
 
 			if ($('#differentiateCheckbox').is(':checked')) {
-				result = differentiateExpression(result, thunkValue)
-				result = trampoline(result);
+				result = differentiateExpression(result);
 				addPrimeToFunction = true;
 			}
 
