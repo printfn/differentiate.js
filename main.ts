@@ -208,7 +208,7 @@ var trampoline = function (thk: Thunk) {
 var printTree = function (expr: Expr) {
     var treeToString = function (expr: Expr): string {
     	if (typeof expr === 'number')
-    		return '' + expr;
+    		return `${expr}`;
         if (typeof expr === 'string')
             return expr;
 
@@ -220,7 +220,7 @@ var printTree = function (expr: Expr) {
                 leftResult = leftResult.substring(1);
             if (rightResult[0] === '|')
                 rightResult = rightResult.substring(1);
-            return '<div class="equation">' + leftResult + '(' + rightResult + ')</div>';
+            return `<div class="equation">${leftResult}(${rightResult})</div>`;
         }
 
         if (leftResult[0] === '|') {
@@ -231,7 +231,7 @@ var printTree = function (expr: Expr) {
         }
 
         // pipe is removed later, means that brackets are required aroung returned expr
-        return '|' + leftResult + ' ' + expr.operator + ' ' + rightResult;
+        return `|${leftResult} ${expr.operator} ${rightResult}`;
     }
 
     return ('<div class="equation">'
