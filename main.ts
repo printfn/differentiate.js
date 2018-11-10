@@ -1,6 +1,7 @@
 type Expr = number | string | { operator: string, left: Expr, right: Expr }
 type Thunk = { tag: 'thunk', func: (...args: any[]) => any, args: any[] } | { tag: 'value', val: Expr }
 declare var parser: { parse: (input: string) => Expr }
+declare var $: any
 
 var add = function (v1: Expr, v2: Expr) {
 	var result = { operator: '+', left: v1, right: v2 };
@@ -338,13 +339,13 @@ window.onload = function () {
 		$(this).toggleClass('hover');
 	});
 
-	$('#output').on('mouseover', '.equation', function (e) {
+	$('#output').on('mouseover', '.equation', function (e: Event) {
 		if ($(this).children('.hover').length === 0) {
 			$(this).addClass('highlight');
 			$(this).find('div').addClass('highlight'); // $().find() works like .children(), but it is recursive
 		}
 	});
-	$('#output').on('mouseout', '.equation', function (e) {
+	$('#output').on('mouseout', '.equation', function (e: Event) {
 		$(this).removeClass('highlight');
 		$(this).find('div').removeClass('highlight');
 	});
