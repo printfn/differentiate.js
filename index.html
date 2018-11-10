@@ -2,57 +2,9 @@
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="main.js"></script>
 	<script src="parser.js"></script>
-	<script src="differentiate.js"></script>
-	<script src="printTree.js"></script>
-	<script src="simplifyExpression.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-
-	<script>
-		function recalculate() {
-			try {
-				var differentiate = function () {
-					var startTime = new Date().getTime(); // ms since 1970
-					var thunkValue = function (v, vd) {
-						return { tag: 'value', val: vd };
-					};
-					var result = document.getElementById('functionTextBox').value;
-
-					result = parser.parse(result);
-					var addPrimeToFunction = false;
-
-					if ($('#simplifyCheckbox1').is(':checked')){
-						result = simplifyExpression(result);
-					}
-
-					if ($('#differentiateCheckbox').is(':checked')) {
-						result = differentiateExpression(result, thunkValue)
-						result = trampoline(result);
-						addPrimeToFunction = true;
-					}
-
-					if ($('#simplifyCheckbox2').is(':checked')){
-						result = simplifyExpression(result);
-					}
-
-					result = printTree(result);
-					var endTime = new Date().getTime();
-					var duration = endTime - startTime;
-					var primeToAdd = addPrimeToFunction ? `'` : ``;
-					return `f${primeToAdd}(x) = ${result}<br><br>${duration}ms`;
-				};
-				$('#output').css('color', '#000');
-				$('#output').html(differentiate());
-			} catch (err) {
-				$('#output').css('color', '#f00');
-				var errorMessage = 'Invalid input.';
-				if (err.message) {
-					errorMessage += ' ' + err.message;
-				}
-				$('#output').html(errorMessage);
-			}
-		}
-	</script>
 </head>
 <body>
 	<p>f(x) = <input type="text" id="functionTextBox" onkeyup="recalculate()" style="width: 200px" /></p>
@@ -62,23 +14,5 @@
 	<input type="checkbox" checked onclick="recalculate()" id="simplifyCheckbox1" />Simplify expression<br>
 	<input type="checkbox" checked onclick="recalculate()" id="differentiateCheckbox" />Differentiate expression<br>
 	<input type="checkbox" checked onclick="recalculate()" id="simplifyCheckbox2" />Simplify derivative<br>
-	<script>
-		$(document).ready(function () {
-			$('#output').on('mouseenter mouseleave', '.equation', function() {
-				$(this).toggleClass('hover');
-			});
-
-			$('#output').on('mouseover', '.equation', function (e) {
-				if ($(this).children('.hover').length === 0) {
-					$(this).addClass('highlight');
-					$(this).find('div').addClass('highlight'); // $().find() works like .children(), but it is recursive
-				}
-			});
-			$('#output').on('mouseout', '.equation', function (e) {
-				$(this).removeClass('highlight');
-				$(this).find('div').removeClass('highlight');
-			});
-		});
-	</script>
 </body>
 </html>
