@@ -322,3 +322,39 @@ window.onload = function () {
         $(this).find('div').removeClass('highlight');
     });
 };
+function test(expr, expected) {
+    try {
+        var result = parser.parse(expr);
+        result = simplifyExpression(result);
+        result = differentiateExpression(result);
+        result = simplifyExpression(result);
+        const parsedExpected = parser.parse(expected);
+        if (!compareNodes(result, parsedExpected)) {
+            throw `Expected: ${printTree(parsedExpected)}<br>Actual: ${printTree(result)}`;
+        }
+    }
+    catch (err) {
+        if (err.message) {
+            return err.message;
+        }
+        else if (typeof err === 'string') {
+            return err;
+        }
+        return 'Unknown Error!';
+    }
+    return null;
+}
+function runTests() {
+    var testCases = [
+        ['x', '1'],
+        ['x^2', '2x']
+    ];
+    var testOutputElement = document.getElementById('testOutput');
+    for (let i in testCases) {
+        let res = test(testCases[i][0], testCases[i][1]);
+        if (res) {
+            testOutputElement.innerHTML += res + '<br>';
+        }
+    }
+    testOutputElement.innerHTML += `Completed ${testCases.length} tests`;
+}
