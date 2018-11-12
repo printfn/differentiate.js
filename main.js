@@ -347,13 +347,27 @@ function test(expr, expected) {
 function runTests() {
     var testCases = [
         ['x', '1'],
-        ['x^2', '2x']
+        ['x^2', '2x'],
+        ['x^3', '3x^2'],
+        ['x^10', '10x^9'],
+        ['xx', '2x'],
+        ['xxx', '3x^2'],
+        ['xxxxx*xxxxx', '10x^9'],
+        ['0', '0'],
+        ['1', '0'],
+        ['0x-451', '0'],
+        ['sin(x)', 'cos(x)'],
+        ['cos(x)', '0-sin(x)'],
+        ['ln(x)', '1/x'],
+        ['1+x+x^2', '1+2x'],
+        ['sin(x^2)', 'cos(x^2)*(2*x)']
+        //['x^(-4)', '-4x^(-3)'], // TODO: implement parsing prefix - first
     ];
     var testOutputElement = document.getElementById('testOutput');
     for (let i in testCases) {
         let res = test(testCases[i][0], testCases[i][1]);
         if (res) {
-            testOutputElement.innerHTML += res + '<br>';
+            testOutputElement.innerHTML += `Test ${parseInt(i, 10) + 1}: ` + res + '<br>';
         }
     }
     testOutputElement.innerHTML += `Completed ${testCases.length} tests`;
