@@ -364,10 +364,11 @@ function runTests() {
         //['x^(-4)', '-4x^(-3)'], // TODO: implement parsing prefix - first
     ];
     var testOutputElement = document.getElementById('testOutput');
+    testOutputElement.innerHTML = ``;
     for (let i in testCases) {
         let res = test(testCases[i][0], testCases[i][1]);
         if (res) {
-            testOutputElement.innerHTML += `Test ${parseInt(i, 10) + 1}: ` + res + '<br>';
+            testOutputElement.innerHTML += `Test ${parseInt(i, 10) + 1}: ${res}<br>`;
         }
     }
     testOutputElement.innerHTML += `Completed ${testCases.length} tests`;
