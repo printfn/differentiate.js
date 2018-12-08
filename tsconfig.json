@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
-        "outFile": "./main.js",
-    	/*"module":"amd",*/
+        "outFile": "./build/main.js",
     	"noImplicitAny": true,
         "allowJs": true,
         "target": "es6",
