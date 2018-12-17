@@ -227,6 +227,8 @@ var simplifyExpression = function (node: Expr): Expr {
 				return node.left;
 			if (typeof node.left === 'number' && typeof node.right === 'number')
 				return node.left * node.right;
+			if (typeof node.right === 'number' && typeof node.left !== 'number')
+				return multiply(node.right, node.left);
             if (typeof node.right === 'object') // (a*(a^b)) -> a^(b+1)
                 if (node.right.operator === '*')
                     if (typeof node.left === 'number' && typeof node.right.left === 'number')
@@ -261,6 +263,11 @@ var simplifyExpression = function (node: Expr): Expr {
                         if (node.right.operator === '/')
                             if (compareNodes(node.left.left, node.right.right))
                                 return multiply(node.right.left, exponent(node.left.left, subtract(node.left.right, 1)));
+            if (typeof node.left === 'object' && typeof node.right === 'string') // (3*(x^a))*x -> 3*(x^(a+1))
+            	if (node.left.operator == '*' && typeof node.left.left === 'number')
+            		if (typeof node.left.right === 'object' && node.left.right.left === node.right)
+            			if (typeof node.left.right.right === 'number' && node.left.right.operator === '^')
+            				return multiply(node.left.left, exponent(node.right, add(1, node.left.right.right)));
 			return node;
 		}
 		case '/': {
@@ -306,16 +313,12 @@ function recalculate() {
 			var result = parser.parse(input);
 			var addPrimeToFunction = false;
 
-			if ($('#simplifyCheckbox1').is(':checked')){
-				result = simplifyExpression(result);
-			}
-
 			if ($('#differentiateCheckbox').is(':checked')) {
 				result = differentiateExpression(result);
 				addPrimeToFunction = true;
 			}
 
-			if ($('#simplifyCheckbox2').is(':checked')){
+			if ($('#simplifyCheckbox').is(':checked')){
 				result = simplifyExpression(result);
 			}
 
@@ -359,7 +362,6 @@ window.onload = function () {
 function test(expr: string, expected: string): string|null {
 	try {
 		var result = parser.parse(expr);
-		result = simplifyExpression(result);
 		result = differentiateExpression(result);
 		result = simplifyExpression(result);
 		const parsedExpected = parser.parse(expected);
