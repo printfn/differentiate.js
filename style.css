@@ -17,3 +17,7 @@ div {
     color: #000;
     padding: 2px 0px 2px 0px; /* Extra padding makes the highlight look a bit nicer */
 }
+
+.hover.highlight {
+    border: 1px solid black;
+}
