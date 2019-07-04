@@ -12,11 +12,15 @@
 	<p id="output"></p>
 	<br>
 	<br>
-	<input type="checkbox" checked onclick="recalculate()" id="differentiateCheckbox" />Differentiate expression<br>
-	<input type="checkbox" checked onclick="recalculate()" id="simplifyCheckbox" />Simplify<br>
+	<input type="checkbox" checked onclick="recalculate()" id="differentiateCheckbox">
+	<label for="differentiateCheckbox">Differentiate expression</label>
+	<br>
+	<input type="checkbox" checked onclick="recalculate()" id="simplifyCheckbox">
+	<label for="simplifyCheckbox">Simplify</label>
 	<br>
 	<br>
-	<input type="button" value="Run Tests" onclick="runTests()">
+	<br>
+	<input type="button" value="Run Unit Tests" onclick="runTests()">
 	<p id="testOutput"></p>
 </body>
 </html>
