@@ -114,39 +114,39 @@ function differentiateExpression(expr: Expr): Expr {
 }
 
 var printTree = function (expr: Expr) {
-    var treeToString = function (expr: Expr): string {
-    	if (typeof expr === 'number')
-    		return `${expr}`;
-        if (typeof expr === 'string')
-            return expr;
+	var treeToString = function (expr: Expr): string {
+		if (typeof expr === 'number')
+			return `${expr}`;
+		if (typeof expr === 'string')
+			return expr;
 
-        var leftResult = treeToString(expr.left);
-        var rightResult = treeToString(expr.right);
+		var leftResult = treeToString(expr.left);
+		var rightResult = treeToString(expr.right);
 
-        if (expr.operator === 'functionCall') {
-            if (leftResult[0] === '|')
-                leftResult = leftResult.substring(1);
-            if (rightResult[0] === '|')
-                rightResult = rightResult.substring(1);
-            return `<span class="equation">${leftResult}(${rightResult})</span>`;
-        }
+		if (expr.operator === 'functionCall') {
+			if (leftResult[0] === '|')
+				leftResult = leftResult.substring(1);
+			if (rightResult[0] === '|')
+				rightResult = rightResult.substring(1);
+			return `<span class="equation">${leftResult}(${rightResult})</span>`;
+		}
 
-        if (leftResult[0] === '|') {
-            leftResult = '(' + leftResult.substring(1) + ')';
-        }
-        if (rightResult[0] === '|') {
-            rightResult = '(' + rightResult.substring(1) + ')';
-        }
+		if (leftResult[0] === '|') {
+			leftResult = '(' + leftResult.substring(1) + ')';
+		}
+		if (rightResult[0] === '|') {
+			rightResult = '(' + rightResult.substring(1) + ')';
+		}
 
-        // pipe is removed later, means that brackets are required around returned expr
-        return `|${leftResult} ${expr.operator} ${rightResult}`;
-    }
+		// pipe is removed later, means that brackets are required around returned expr
+		return `|${leftResult} ${expr.operator} ${rightResult}`;
+	}
 
-    return ('<span class="equation">'
-        + treeToString(expr).replace(/^\|/, '')
-            .replace(/\(/g, '<span class="equation">(')
-            .replace(/\)/g, ')</span>')
-        + '</span>');
+	return ('<span class="equation">'
+		+ treeToString(expr).replace(/^\|/, '')
+			.replace(/\(/g, '<span class="equation">(')
+			.replace(/\)/g, ')</span>')
+		+ '</span>');
 };
 
 var simplifyExpression = function (node: Expr): Expr {
@@ -229,10 +229,10 @@ var simplifyExpression = function (node: Expr): Expr {
 				return node.left * node.right;
 			if (typeof node.right === 'number' && typeof node.left !== 'number')
 				return multiply(node.right, node.left);
-            if (typeof node.right === 'object') // (a*(a^b)) -> a^(b+1)
-                if (node.right.operator === '*')
-                    if (typeof node.left === 'number' && typeof node.right.left === 'number')
-                        return multiply(node.left * node.right.left, node.right.right);
+			if (typeof node.right === 'object') // (a*(a^b)) -> a^(b+1)
+				if (node.right.operator === '*')
+					if (typeof node.left === 'number' && typeof node.right.left === 'number')
+						return multiply(node.left * node.right.left, node.right.right);
 			if (compareNodes(node.left, node.right))
 				return simplifyExpression({ operator: '^', left: node.left, right: 2 });
 			if (typeof node.right === 'object') // (a*(a^b)) -> a^(b+1)
@@ -257,17 +257,17 @@ var simplifyExpression = function (node: Expr): Expr {
 						if (node.right.left.operator === '^')
 							if (compareNodes(node.right.left.left, node.left))
 								return multiply(node.right.right, exponent(node.left, add(node.right.left.right, 1)));
-            if (typeof node.left === 'object') // ((a^b)*(c/a)) -> c*(a^(b-1))
-                if (node.left.operator === '^')
-                    if (typeof node.right === 'object') // ((a^b)*(c/a)) -> c*(a^(b-1))
-                        if (node.right.operator === '/')
-                            if (compareNodes(node.left.left, node.right.right))
-                                return multiply(node.right.left, exponent(node.left.left, subtract(node.left.right, 1)));
-            if (typeof node.left === 'object' && typeof node.right === 'string') // (3*(x^a))*x -> 3*(x^(a+1))
-            	if (node.left.operator == '*' && typeof node.left.left === 'number')
-            		if (typeof node.left.right === 'object' && node.left.right.left === node.right)
-            			if (typeof node.left.right.right === 'number' && node.left.right.operator === '^')
-            				return multiply(node.left.left, exponent(node.right, add(1, node.left.right.right)));
+			if (typeof node.left === 'object') // ((a^b)*(c/a)) -> c*(a^(b-1))
+				if (node.left.operator === '^')
+					if (typeof node.right === 'object') // ((a^b)*(c/a)) -> c*(a^(b-1))
+						if (node.right.operator === '/')
+							if (compareNodes(node.left.left, node.right.right))
+								return multiply(node.right.left, exponent(node.left.left, subtract(node.left.right, 1)));
+			if (typeof node.left === 'object' && typeof node.right === 'string') // (3*(x^a))*x -> 3*(x^(a+1))
+				if (node.left.operator == '*' && typeof node.left.left === 'number')
+					if (typeof node.left.right === 'object' && node.left.right.left === node.right)
+						if (typeof node.left.right.right === 'number' && node.left.right.operator === '^')
+							return multiply(node.left.left, exponent(node.right, add(1, node.left.right.right)));
 			return node;
 		}
 		case '/': {
