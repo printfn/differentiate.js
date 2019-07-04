@@ -128,7 +128,7 @@ var printTree = function (expr: Expr) {
                 leftResult = leftResult.substring(1);
             if (rightResult[0] === '|')
                 rightResult = rightResult.substring(1);
-            return `<div class="equation">${leftResult}(${rightResult})</div>`;
+            return `<span class="equation">${leftResult}(${rightResult})</span>`;
         }
 
         if (leftResult[0] === '|') {
@@ -138,15 +138,15 @@ var printTree = function (expr: Expr) {
             rightResult = '(' + rightResult.substring(1) + ')';
         }
 
-        // pipe is removed later, means that brackets are required aroung returned expr
+        // pipe is removed later, means that brackets are required around returned expr
         return `|${leftResult} ${expr.operator} ${rightResult}`;
     }
 
-    return ('<div class="equation">'
+    return ('<span class="equation">'
         + treeToString(expr).replace(/^\|/, '')
-            .replace(/\(/g, '<div class="equation">(')
-            .replace(/\)/g, ')</div>')
-        + '</div>');
+            .replace(/\(/g, '<span class="equation">(')
+            .replace(/\)/g, ')</span>')
+        + '</span>');
 };
 
 var simplifyExpression = function (node: Expr): Expr {
@@ -313,12 +313,12 @@ function recalculate() {
 			var result = parser.parse(input);
 			var addPrimeToFunction = false;
 
-			if ($('#differentiateCheckbox').is(':checked')) {
+			if (document.getElementById('differentiateCheckbox').checked) {
 				result = differentiateExpression(result);
 				addPrimeToFunction = true;
 			}
 
-			if ($('#simplifyCheckbox').is(':checked')){
+			if (document.getElementById('simplifyCheckbox').checked){
 				result = simplifyExpression(result);
 			}
 
@@ -343,6 +343,9 @@ function recalculate() {
 }
 
 window.onload = function () {
+	// target element and all parents gain .hover
+	// target element and all children gain .highlight
+
 	$('#output').on('mouseenter mouseleave', '.equation', function() {
 		$(this).toggleClass('hover');
 	});

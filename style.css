@@ -2,10 +2,6 @@ body {
     font-family: monaco, monospace;
 }
 
-div {
-    display: inline;
-}
-
 /* Nodes have no padding by default */
 .equation {
     padding: 0px 0px 0px 0px;
