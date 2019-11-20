@@ -1,5 +1,5 @@
 start
-  = additiveExpression
+  = _ expr:additiveExpression _ { return expr; }
 
 additiveOperator
   = "+"
@@ -14,8 +14,8 @@ exponentialOperator
   = "^"
 
 additiveExpression
-  = head:multiplicativeExpression
-    tail:(_ additiveOperator _ multiplicativeExpression)* {
+  = _ head:multiplicativeExpression
+    _ tail:(_ additiveOperator _ multiplicativeExpression)* _ {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
         result = {
@@ -28,8 +28,8 @@ additiveExpression
     }
 
 multiplicativeExpression
-  = head:exponentialExpression
-    tail:(_ multiplicativeOperator _ exponentialExpression)* {
+  = _ head:exponentialExpression
+    _ tail:(_ multiplicativeOperator _ exponentialExpression)* _ {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
         var operator = tail[i][1];
@@ -46,21 +46,20 @@ multiplicativeExpression
     }
 
 exponentialExpression
-  = head:unaryExpression _ op:exponentialOperator _ tail:exponentialExpression {
+  = _ head:unaryExpression _ op:exponentialOperator _ tail:exponentialExpression _ {
       return {
           operator: op,
           left:     head,
           right:    tail
       };
     }
-  / unaryExpression
+  / _ expr:unaryExpression _ { return expr; }
 
 unaryExpression
-  = integer
-  / "x"
-  / functionCallExpression
-  / "(" _ expr:additiveExpression _ ")" _
-    { return expr; }
+  = _ i:integer _                           { return i; }
+  / _ x:"x" _                               { return x; }
+  / _ f:functionCallExpression _            { return f; }
+  / _ "(" _ expr:additiveExpression _ ")" _ { return expr; }
 
 functionCallExpression
   = head:identifier _ "(" _ tail:additiveExpression _ ")"
@@ -71,12 +70,12 @@ functionCallExpression
       };
     }
 
-identifier = name:[a-zA-Z]+ { return name.join(""); }
+identifier = _ name:[a-zA-Z]+ _ { return name.join(""); }
 
 integer "integer"
-  = digits:[0-9]+ { return parseInt(digits.join("")); }
+  = _ digits:[0-9]+ _ { return parseInt(digits.join("")); }
 
 _ = whitespace / ""
 
 whitespace "whitespace"
-  = [\r\n\t\v\f \u00A0\uFEFF]
+  = [\r\n\t\v\f \u00A0\uFEFF]+
