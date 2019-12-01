@@ -281,6 +281,10 @@ function recalculate() {
         var differentiate = function () {
             var startTime = new Date().getTime(); // ms since 1970
             var input = document.getElementById('functionTextBox').value;
+            // empty input
+            if (input.trim().length == 0) {
+                return '';
+            }
             var result = parser.parse(input);
             var addPrimeToFunction = false;
             if (document.getElementById('differentiateCheckbox').checked) {

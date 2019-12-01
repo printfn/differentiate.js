@@ -310,15 +310,20 @@ function recalculate() {
 			var startTime = new Date().getTime(); // ms since 1970
 			var input = (<HTMLInputElement>document!.getElementById('functionTextBox')!).value;
 
+			// empty input
+			if (input.trim().length == 0) {
+				return '';
+			}
+
 			var result = parser.parse(input);
 			var addPrimeToFunction = false;
 
-			if (document.getElementById('differentiateCheckbox').checked) {
+			if ((<HTMLInputElement>document.getElementById('differentiateCheckbox')!).checked) {
 				result = differentiateExpression(result);
 				addPrimeToFunction = true;
 			}
 
-			if (document.getElementById('simplifyCheckbox').checked){
+			if ((<HTMLInputElement>document.getElementById('simplifyCheckbox')!).checked){
 				result = simplifyExpression(result);
 			}
 
