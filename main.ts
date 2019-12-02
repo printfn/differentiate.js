@@ -1,7 +1,6 @@
 type Expr = number | string | { operator: string, left: Expr, right: Expr }
 type Thunk = { tag: 'thunk', func: (...args: any[]) => any, args: any[] } | { tag: 'value', val: Expr }
 declare var parser: { parse: (input: string) => Expr }
-declare var $: any
 
 var add = function (v1: Expr, v2: Expr) {
 	var result = { operator: '+', left: v1, right: v2 };
@@ -116,7 +115,7 @@ function differentiateExpression(expr: Expr): Expr {
 var printTree = function (expr: Expr) {
 	var treeToString = function (expr: Expr): string {
 		if (typeof expr === 'number')
-			return `${expr}`;
+			return expr.toString();
 		if (typeof expr === 'string')
 			return expr;
 
@@ -128,7 +127,7 @@ var printTree = function (expr: Expr) {
 				leftResult = leftResult.substring(1);
 			if (rightResult[0] === '|')
 				rightResult = rightResult.substring(1);
-			return `<span class="equation">${leftResult}(${rightResult})</span>`;
+			return `${leftResult}(${rightResult})`;
 		}
 
 		if (leftResult[0] === '|') {
@@ -142,11 +141,9 @@ var printTree = function (expr: Expr) {
 		return `|${leftResult} ${expr.operator} ${rightResult}`;
 	}
 
-	return ('<span class="equation">'
-		+ treeToString(expr).replace(/^\|/, '')
-			.replace(/\(/g, '<span class="equation">(')
-			.replace(/\)/g, ')</span>')
-		+ '</span>');
+	return (treeToString(expr).replace(/^\|/, '')
+			.replace(/\(/g, `(`)
+			.replace(/\)/g, ')'));
 };
 
 var simplifyExpression = function (node: Expr): Expr {
@@ -333,10 +330,10 @@ function recalculate() {
 			var primeToAdd = addPrimeToFunction ? `'` : ``;
 			return `f${primeToAdd}(x) = ${result}<br><br>${duration}ms`;
 		};
-		outputElement.style.color = '#000';
 		outputElement.innerHTML = differentiate();
+		outputElement.classList.remove('output-error');
 	} catch (err) {
-		outputElement.style.color = '#f00';
+		outputElement.classList.add('output-error');
 		var errorMessage = 'Invalid input.';
 		if (err.message) {
 			errorMessage += ' ' + err.message;
@@ -346,26 +343,6 @@ function recalculate() {
 		outputElement.innerHTML = errorMessage;
 	}
 }
-
-window.onload = function () {
-	// target element and all parents gain .hover
-	// target element and all children gain .highlight
-
-	$('#output').on('mouseenter mouseleave', '.equation', function() {
-		$(this).toggleClass('hover');
-	});
-
-	$('#output').on('mouseover', '.equation', function (e: Event) {
-		if ($(this).children('.hover').length === 0) {
-			$(this).addClass('highlight');
-			$(this).find('div').addClass('highlight'); // $().find() works like .children(), but it is recursive
-		}
-	});
-	$('#output').on('mouseout', '.equation', function (e: Event) {
-		$(this).removeClass('highlight');
-		$(this).find('div').removeClass('highlight');
-	});
-};
 
 function test(expr: string, expected: string): string|null {
 	try {
@@ -403,7 +380,8 @@ function runTests() {
 		['cos(x)', '0-sin(x)'],
 		['ln(x)', '1/x'],
 		['1+x+x^2', '1+2x'],
-		['sin(x^2)', 'cos(x^2)*(2*x)']
+		['sin(x^2)', 'cos(x^2)*(2*x)'],
+		['x * x + sin ( x )', '2x+cos(x)']
 		//['x^(-4)', '-4x^(-3)'], // TODO: implement parsing prefix - first
 	];
 	var testOutputElement = document!.getElementById('testOutput')!;
